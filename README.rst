@@ -1,10 +1,8 @@
 Sample Module Repository
 ========================
 
-This simple project is an example repo for Python projects.
+Lorem ipsum
 
-`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
-
----------------
-
-If you want to learn more about ``setup.py`` files, check out `this repository <https://github.com/kennethreitz/setup.py>`_.
+TO-DO:
+- update license doc etc. before making public
+- add my patched mingus folder (cf conda venv folder) and test installation
