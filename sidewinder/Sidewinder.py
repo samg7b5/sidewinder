@@ -41,7 +41,7 @@ def minimal_chord_distance(source_chord, target_chord):
     return distance
 
 def rebuild_chord_upwards(chord): 
-    chord = [int(note) for note in chord] # Note() to int
+    chord = [int(Note(note)) for note in chord] # Note() to int
     a = chord[0]
     for i, b in enumerate(chord[1:]):
         b = move_b_above_a_with_modularity(a,b,12)
@@ -53,7 +53,7 @@ def rebuild_chord_inwards(chord):
     '''
     Expects a list of Note strings
     '''
-    chord = [int(note) for note in chord] # Note() to int
+    chord = [int(Note(note)) for note in chord] # Note() to int
     a = chord[0]
     for i, b in enumerate(chord[1:]):
         b = np.floor(a/12)*12 + np.mod(b, 12)
@@ -71,9 +71,10 @@ def chords_to_track(chords, durations):
 
 def progression_to_chords(progression, prog_type='shorthand'):
     '''
-    progression is list of symbols -> chords_ is a list of unvoiced str e.g. ['I7', 'V7', 'II'] -> [['C', 'E', 'G', 'Bb'], ...]
+    progression is list of symbols -> chords_ is a list of unvoiced str e.g. as numerals ['I7', 'V7', 'II'] 
+    and output is unvoiced chord strings -> [['C', 'E', 'G', 'Bb'], ...]
     
-    NOTE: for numerals, lower-case should not be used to imply minor (specify using '-', 'm', 'min')
+    NOTE: for numerals input, lower-case should not be used to imply minor (specify using '-', 'm', 'min')
     '''
     progression = parse_progression(progression) # to prevent mingus' diatonic parsing doing something like I7->Cmaj7
     if prog_type == 'shorthand': # e.g. Am7
@@ -99,7 +100,13 @@ def generate_close_chords(chord):
     return inversions
 
 def smooth_next_chord(voiceA, chordB):
-    voiceB = None # temp
+    '''
+    voiceA is a list of ints
+    chordB is a list of Notes e.g. [Note('C-4'), ...] 
+    '''
+    inversions = generate_close_chords(chordB)
+    distances = [minimal_chord_distance(voiceA, inversion) for inversion in inversions]
+    voiceB = inversions[np.argmin(distances)]
     return voiceB
 
 def smooth_voice_leading(progression, durations, prog_type='shorthand'):
@@ -107,11 +114,7 @@ def smooth_voice_leading(progression, durations, prog_type='shorthand'):
     chords_ = progression_to_chords(progression, prog_type)
     # here, chords_ is a list of lists [['C', 'E', 'G', 'B'],...] (which will default to octave as C-4 etc in chords_to_track)
     
-    # do we really need to convert to a track? otherwise it's much nicer to be able to read in shorthand directly
-    
     track = chords_to_track(chords_, durations)
-    
-    print('TO-DO: smooth_voice_leading() should be refactored to: f(voiced chord A (integers), chord symbol B (str)) = smooth voiced chord B (integers)')
     
     voiced_chords = []
     for i, event in enumerate(track):
@@ -119,11 +122,7 @@ def smooth_voice_leading(progression, durations, prog_type='shorthand'):
         if i == 0:
             voiced_chords.append([int(note) for note in chord]) # converted into ints
         if i>0:
-            print('v: ', voiced_chords[i-1]) # list of ints
-            print('chord: ', chord) # list of notes incl. octave (e.g. ['E-4', 'G-4'])
-            inversions = generate_close_chords(chord)
-            distances = [minimal_chord_distance(voiced_chords[i-1], inversion) for inversion in inversions]
-            voiced_chords.append(inversions[np.argmin(distances)])
+            voiced_chords.append(smooth_next_chord(voiced_chords[i-1], chord))
     
     voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
     return voiced_chords
@@ -139,14 +138,12 @@ def shell_voice(progression, durations, prog_type='shorthand', roots=False, exte
     # save them if we're putting in the bass
     if roots:
         roots_ = [int(Note(chord[0], octave=3)) for chord in chords_] 
-        
-    # to create the shell voicing, let's first remove the root and 5th    
-    chords_ = [[chord[1]]+chord[3:] for chord in chords_]
-    base_chords_ = [chord[:2] for chord in chords_]
+           
+    chords_ = [[chord[1]]+chord[3:] for chord in chords_] # to create the shell voicing, let's first remove the root and 5th 
+    base_chords_ = [chord[:2] for chord in chords_] # keep the first two notes (3rd and 7th)
     if extensions:
-        extensions_ = [chord[2:] for chord in chords_]
+        extensions_ = [chord[2:] for chord in chords_] # keep any higher extensions
         
-    
     # we now perform simple voice leading on the base_chords_ (and then stick the extensions_ on top)
     chords_ = base_chords_
     track = chords_to_track(chords_, durations)
@@ -159,9 +156,7 @@ def shell_voice(progression, durations, prog_type='shorthand', roots=False, exte
         if i == 0:
             voiced_chords.append([int(note) for note in chord])
         if i>0:
-            inversions = generate_close_chords(chord)
-            distances = [minimal_chord_distance(voiced_chords[i-1], inversion) for inversion in inversions]
-            voiced_chords.append(inversions[np.argmin(distances)])
+            voiced_chords.append(smooth_next_chord(voiced_chords[i-1], chord))
             
         # add extensions for each chord
         if extensions and len(chord_extensions)>0:
@@ -223,7 +218,7 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
     
     voiced_chords = []
     slash_chord = False
-    for chord in chords_:
+    for i, chord in enumerate(chords_):
         chord_root = chord[0]
         chord_type = chord[1]
 
@@ -267,11 +262,14 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
         
         if chord_type in ['7b9', 'minMaj7', 'm6', 'M6', '7#5', 'o']:
             voiced_chord = chords.from_shorthand(chord_root + chord_type)
+            if i>0:
+                voiced_chord = smooth_next_chord(voiced_chords[i-1],voiced_chord)
+                voiced_chord = [Note().from_int(int(note)) for note in voiced_chord]
+            
         if slash_chord:
             voiced_chord = [int(Note(bass_note, octave=3))] + voiced_chord
             slash_chord = False
         
-            
         voiced_chords.append(rebuild_chord_upwards([Note(note) for note in voiced_chord])) # to preserve the order we just made
     
     voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
