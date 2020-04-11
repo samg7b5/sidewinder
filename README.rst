@@ -1,7 +1,12 @@
-Sample Module Repository
+Sidewinder
 ========================
 
-Lorem ipsum
+                          .-=-.          .--.
+              __        .'     '.       /  " )
+      _     .'  '.     /   .-.   \     /  .-'\
+     ( \   / .-.  \   /   /   \   \   /  /    ^
+      \ `-` /   \  `-'   /     \   `-`  /
+       `-.-`     '.____.'       `.____.'
 
 TO-DO:
 - update license doc etc. before making public
