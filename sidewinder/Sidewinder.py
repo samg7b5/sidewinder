@@ -50,6 +50,9 @@ def rebuild_chord_upwards(chord):
     return chord
 
 def rebuild_chord_inwards(chord):
+    '''
+    Expects a list of Note strings
+    '''
     chord = [int(note) for note in chord] # Note() to int
     a = chord[0]
     for i, b in enumerate(chord[1:]):
@@ -62,9 +65,22 @@ def chords_to_track(chords, durations):
     t = Track()
     for i, chord in enumerate(chords):
         b = Bar()
-        b.place_notes(chord, durations[i])
+        b.place_notes(chord, durations[i]) # default octave is ['C','E','G']->['C-4','E-4','G-4'] (this is the first instance of voicing)
         t.add_bar(b)
     return t
+
+def progression_to_chords(progression, prog_type='shorthand'):
+    '''
+    progression is list of symbols -> chords_ is a list of unvoiced str e.g. ['I7', 'V7', 'II'] -> [['C', 'E', 'G', 'Bb'], ...]
+    
+    NOTE: for numerals, lower-case should not be used to imply minor (specify using '-', 'm', 'min')
+    '''
+    progression = parse_progression(progression) # to prevent mingus' diatonic parsing doing something like I7->Cmaj7
+    if prog_type == 'shorthand': # e.g. Am7
+        chords_ = [chords.from_shorthand(chord) for chord in progression]
+    elif prog_type == 'numerals': # e.g. IIm7
+        chords_ = [progressions.to_chords(chord)[0] for chord in progression]
+    return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
 #%% Voices
 def generate_chord_inversions(chord): # works on semitones
@@ -74,17 +90,24 @@ def generate_chord_inversions(chord): # works on semitones
     return inversions
 
 def generate_close_chords(chord):
+    '''
+    Works on lists (individual elements could be int or str)
+    '''
     inversions = [[chord[p - q] for p in range(len(chord))] for q in range(len(chord))]
     for i, chord in enumerate(inversions):
         inversions[i] = rebuild_chord_inwards(chord)
     return inversions
 
+def smooth_next_chord(voiceA, chordB):
+    voiceB = None # temp
+    return voiceB
+
 def smooth_voice_leading(progression, durations, prog_type='shorthand'):
     
-    if prog_type == 'shorthand': # e.g. Am7
-        chords_ = [chords.from_shorthand(chord) for chord in progression]
-    elif prog_type == 'numerals': # e.g. IIm7
-        chords_ = [progressions.to_chords(chord)[0] for chord in progression]
+    chords_ = progression_to_chords(progression, prog_type)
+    # here, chords_ is a list of lists [['C', 'E', 'G', 'B'],...] (which will default to octave as C-4 etc in chords_to_track)
+    
+    # do we really need to convert to a track? otherwise it's much nicer to be able to read in shorthand directly
     
     track = chords_to_track(chords_, durations)
     
@@ -92,10 +115,12 @@ def smooth_voice_leading(progression, durations, prog_type='shorthand'):
     
     voiced_chords = []
     for i, event in enumerate(track):
-        chord = event[0][2] # current chord, to align with previous (if i>0)
+        chord = event[0][2] # current chord, to align with previous (if i>0); as voiced str ['C-4', 'E-4', 'G-4']
         if i == 0:
-            voiced_chords.append([int(note) for note in chord])
+            voiced_chords.append([int(note) for note in chord]) # converted into ints
         if i>0:
+            print('v: ', voiced_chords[i-1]) # list of ints
+            print('chord: ', chord) # list of notes incl. octave (e.g. ['E-4', 'G-4'])
             inversions = generate_close_chords(chord)
             distances = [minimal_chord_distance(voiced_chords[i-1], inversion) for inversion in inversions]
             voiced_chords.append(inversions[np.argmin(distances)])
@@ -109,10 +134,7 @@ def shell_voice(progression, durations, prog_type='shorthand', roots=False, exte
     
     potentially also add extensions. extensions flag is to by default filter out any extensions above 7th, otherwise cf http://www.jamieholroydguitar.com/how-to-play-shell-voicings/
     '''
-    if prog_type == 'shorthand': # e.g. Am7
-        chords_ = [chords.from_shorthand(chord) for chord in progression]
-    elif prog_type == 'numerals': # e.g. IIm7
-        chords_ = [progressions.to_chords(chord)[0] for chord in progression]
+    chords_ = progression_to_chords(progression, prog_type)
         
     # save them if we're putting in the bass
     if roots:
@@ -169,6 +191,8 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
         - it also doesn't handle other chord types very well
     
     '''
+    # chords_ = progression_to_chords(progression, prog_type) # using a different approach below
+    
     if prog_type == 'numerals': # e.g. IIm7
         progression = [progressions.to_chords(chord)[0] for chord in progression]
         progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
@@ -202,7 +226,7 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
     for chord in chords_:
         chord_root = chord[0]
         chord_type = chord[1]
-        
+
         
         if '/' in chord_type:
             print('TO-DO: handle slash chords at a more macro level, e.g. have a function which adds bass note to any slash chord voicing')
