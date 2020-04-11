@@ -88,7 +88,7 @@ def smooth_voice_leading(progression, durations, prog_type='shorthand'):
     
     track = chords_to_track(chords_, durations)
     
-    print('TO-DO: this function should be refactored to: f(voiced chord A (integers), chord symbol B (str)) = smooth voiced chord B (integers)')
+    print('TO-DO: smooth_voice_leading() should be refactored to: f(voiced chord A (integers), chord symbol B (str)) = smooth voiced chord B (integers)')
     
     voiced_chords = []
     for i, event in enumerate(track):
@@ -203,8 +203,9 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
         chord_root = chord[0]
         chord_type = chord[1]
         
-        print('TO-DO: handle slash chords at a more macro level, e.g. have a function which adds bass note to any slash chord voicing')
+        
         if '/' in chord_type:
+            print('TO-DO: handle slash chords at a more macro level, e.g. have a function which adds bass note to any slash chord voicing')
             slash_chord = True
             bass_note = ''.join(chord_type.split('/')[1:])
             chord_type = chord_type.split('/')[0]
