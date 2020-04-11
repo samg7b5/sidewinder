@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Learn more: https://github.com/kennethreitz/setup.py
-
 from setuptools import setup, find_packages
 
 
@@ -20,6 +18,6 @@ setup(
     author_email='samg7b5@gmail.com',
     url='https://github.com/samg7b5/sidewinder',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs', 'midi_out'))
 )
 
