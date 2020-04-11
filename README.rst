@@ -1,13 +1,12 @@
 Sidewinder:snake:
 ========================
 
-                          .-=-.          .\--.
-              \__        .'     '.       /  " )
-      _     .'  '.     /   .-.   \     /  .-'\
-     ( \   / .-.  \   /   /   \   \   /  /    ^
-      \ `-` /   \  `-'   /     \   `-`  /
-       `-.-`     '.\____.'       `.\____.'
+Sidewinder is a programming library for composition and jazz theory.
 
+Features:
+- Generate midi backing tracks (chords, bassline) from chord symbols
+- Different chord voicings: shell, rootless, etc.
+- ...
 
 TO-DO:
 - update license doc etc. before making public
