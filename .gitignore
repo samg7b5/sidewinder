@@ -1,4 +1,6 @@
+# Directories
 midi_out/
+data/licks-database
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
