@@ -9,7 +9,7 @@ from mingus.midi import midi_file_out, midi_file_in
 
 #%%
 from tinydb import TinyDB, Query # https://tinydb.readthedocs.io/en/latest/getting-started.html
-db = TinyDB(r'data\licks-database\db.json')
+db = TinyDB(r'C:\Users\Sam\Documents\Sidewinder\local files\jazz-licks-db.json')
 db.insert({'name': 'test', 'passage': None, 'tags':'251'})
 db_size = len(db.all())
 
