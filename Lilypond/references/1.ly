@@ -1,5 +1,4 @@
 \version "2.20.0"
-
   
 melody = \relative c'' { % sets reference starting pitch where ' denotes 8va
      \key c \major
