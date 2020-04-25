@@ -25,11 +25,13 @@ def move_b_above_a_with_modularity(a,b,mod): # return min{x: x==b modulo 'mod' &
     
 synonyms = {'C#':'Db',
             'D#':'Eb',
+            'E':'Fb',
+            'E#':'F',
             'F#':'Gb',
             'G#':'Ab',
             'A#':'Bb',
-            'B#':'C',
-            'E#':'F'}
+            'B':'Cb',
+            'B#':'C'}
 synonyms_r = {v:k for k,v in synonyms.items()}
 
 #%% Chords
