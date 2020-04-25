@@ -1,6 +1,8 @@
 # Directories
 midi_out/
-data/licks-database/
+!data/
+data/**
+!/data/example-database/
 !Lilypond/
 Lilypond/**
 !/Lilypond/references/
