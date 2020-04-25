@@ -6,7 +6,7 @@ Created on Sat Oct 12 21:11:45 2019
 """
 from mingus.containers import Note
 import mingus.core.progressions as progressions
-from mingus.midi import midi_file_out
+from mingus.midi import midi_file_out, midi_file_in
 from mingus.containers import Track, Bar
 from mingus.core import intervals
 import mingus.core.scales as scales
@@ -374,7 +374,7 @@ def create_walking_bassline(chords_, durations):
     chords_ in the form [chords.chord_note_and_family(chord) for chord in prog] e.g. [('D', 'm7'), ('G', '7'), ('C', 'M7')]
     '''
     variants = ['pedal', 'arp7', 'arp', 'diat', 'chrom', 'dblchrm']
-    variant_weights = [0.5,5,5,2,0.5,1]
+    variant_weights = [0.5,5,5,2,1,0.5]
     styles = random.choices(population=variants, weights=variant_weights, k=len(chords_))
     
     bassline = []

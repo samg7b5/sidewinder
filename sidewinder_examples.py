@@ -84,9 +84,9 @@ tb = sw.chords_to_bassline_midi(blueingreen, blueingreen_durs, name='midi_out\\b
 
 import sidewinder as sw
 
-robin = 'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5'
-robin_durs = [1,2,2]*2
+robin = 'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' +'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' + 'B6, C7#5, C#13, C7#5, Bmaj9, Abmaj9, Bmaj9, C#m11b5, F#7, ' + 'C#m9, C#m11b5, F#m7b5'
+robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
 
-t = sw.chords_to_midi(robin, robin_durs, name='midi_out\\robin', voicing='smooth') # no need to specify a key
+t = sw.chords_to_midi(robin, robin_durs, name='midi_out\\robinsh', voicing='shell', roots=True) # no need to specify a key
 tb = sw.chords_to_bassline_midi(robin, robin_durs, name='midi_out\\robin_bass')
 
