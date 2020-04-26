@@ -18,6 +18,6 @@ setup(
     author_email='samg7b5@gmail.com',
     url='https://github.com/samg7b5/sidewinder',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs', 'midi_out'))
+    packages=find_packages(exclude=('tests', 'docs', 'midi_out', 'data', 'Lilypond'))
 )
 

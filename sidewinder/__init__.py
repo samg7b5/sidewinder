@@ -1,2 +1,1 @@
-from .core import hmm
-from .Sidewinder import * # or you can choose what to expose, see above
+from .Sidewinder import * # or you can maybe choose what to expose
