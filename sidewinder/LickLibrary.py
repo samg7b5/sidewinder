@@ -47,7 +47,7 @@ def load_entry(db, entry):
     '''
     TO-DO: Returns the entry as an object 
     '''
-    #process and potentially do some mingus instantiation, then JazzLick()
+    #process and potentially do some mingus instantiation, then JazzLick() -  should use jsonpickle for convenience
     return JazzLick(entry) # placeholder for Class instantiation - defn depends on use reqs e.g. auto-convert between scale degree formats
 
 # TO-DO: do a search by stylistic tag e.g. modern, bebop etc.
@@ -379,6 +379,7 @@ if __name__ == 'main':
     
     track = y_comp.tracks[2]
     
+    # some of the below will form a good example when finished:
     # midi files are created fine by ly/sib and can be read in fine, but saving back to disk messes up the timing/measures
     # let's try to realign everything back to fixed measures - that way we can split midi files into separate licks and do analysis
     track_temped = temporal_realign_bars(track)
@@ -392,12 +393,10 @@ if __name__ == 'main':
     #y_Obj.to_midi()
     #y_Obj.store(db)
     #y_Obj.tag(['4 bars','quaver lines'])
-
-
-#%% NEXT -==========================================
+    
+    # ---------------------->> NOW ALSO CREATE SOME CODE TO IMPORT THE JIMINPARK 251 INDIVIDUAL MIDIS TO DB
+    
+#   NEXT -==========================================
     # 1) given slice markers, separate different licks
     # overlaying on progressions
     # 2) scale degree analysis e.g. generate more licks and find patterns
-
-
-    

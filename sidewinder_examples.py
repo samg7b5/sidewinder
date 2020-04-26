@@ -5,7 +5,7 @@ Created on Mon Dec 30 19:38:09 2019
 @author: Sam
 """
 import sidewinder as sw
-from sidewinder.LickLibrary import JazzLick
+from sidewinder.LickLibrary import JazzLick, get_chords_from_track
 
 from mingus import *
 
@@ -68,22 +68,10 @@ robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
 y_comp, y_bpm = midi_file_in.MIDI_to_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out_sib.mid') # generated via Lilypond (Frescobaldi)
 #midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\std_midi_out.mid', 
 #                                y_comp, repeat=0, verbose=True)
-
 #analyse_composition(y_comp)
 track = y_comp.tracks[1]
-y_chords = sw.LickLibrary.get_chords_from_track(track)
+y_chords = get_chords_from_track(track)
 
-# split composition into different licks:
-split_points = [5, 9, 13, 17, 21, 25, 29, 33, 36.5, 40.5, 45, 49, 53] # bar numbers
-
-track = y_comp.tracks[2]
-
-# midi files are created fine by ly/sib and can be read in fine, but saving back to disk messes up the timing/measures
-# let's try to realign everything back to fixed measures - that way we can split midi files into separate licks and do analysis
-track_temped = sw.LickLibrary.temporal_realign_bars(track)
-track_temped_fix = sw.LickLibrary.Track_from_list([unwrapped_bars for bar in track_temped.bars for unwrapped_bars in sw.LickLibrary.fix_track_bar(bar)])
-# TO-DO: not yet fixed - need to stop editing track inplace in the functions above (cf LickLibrary)
-midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\track_temped.mid', track_temped_fix) 
 
 #%%
 y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
