@@ -4,9 +4,11 @@ Created on Sat Oct 12 21:11:45 2019
 
 @author: Sam
 """
+from . import LickLibrary
+
 from mingus.containers import Note
 import mingus.core.progressions as progressions
-from mingus.midi import midi_file_out, midi_file_in
+from mingus.midi import midi_file_out
 from mingus.containers import Track, Bar
 from mingus.core import intervals
 import mingus.core.scales as scales
