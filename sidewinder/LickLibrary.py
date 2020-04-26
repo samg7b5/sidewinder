@@ -12,14 +12,23 @@ from mingus.midi import midi_file_out, midi_file_in
 import mingus.core.chords as chords
 chord_to_shorthand = {v:k for k,v in chords.chord_shorthand_meaning.items()}
 
+import json
 from itertools import combinations
 from datetime import datetime
 
 #%%
 from tinydb import TinyDB, Query # https://tinydb.readthedocs.io/en/latest/getting-started.html
 db = TinyDB(r'C:\Users\Sam\Documents\Sidewinder\local files\jazz-licks-db.json')
-db.insert({'name': 'test', 'passage': None, 'tags':'251'})
+#db.insert({'name': 'test', 'passage': None, 'tags':'251'})
 db_size = len(db.all())
+
+#%% misc
+def is_jsonable(x):
+    try:
+        json.dumps(x)
+        return True
+    except (TypeError, OverflowError):
+        return False
 
 #%% db functions
 def find_all_matches(db, entry):
@@ -36,13 +45,9 @@ def load_entry(db, entry):
     '''
     Returns the entry as an object 
     '''
+    #process and potentially do some mingus instantiation, then JazzLick()
     return entry_instantiated_as_lick_object(entry) # placeholder for Class instantiation - defn depends on use reqs e.g. auto-convert between scale degree formats
 
-def add_entry(db, entry):
-    '''
-    Adds entry with any necessary processing routines e.g. storing reference to pickled/midi/ly passage
-    '''
-    return new_doc_id
 
 
 #%% TO-DO: could probably move some of this into sidewinder core, and also some of the below into _examples
@@ -107,25 +112,72 @@ def respell_and_determine(chord):
 #%%
     
 class JazzLick:
-    def __init__(self, source=None, chords=None, passage=None, name='_'):
-        self.ID = int(datetime.now().strftime('%Y%m%d%H%M%S'))
+    '''
+    parameters:
+        source: data to instantiate the object (e.g. for conversions/analysis)
+        chords: 
+            - if source is type Composition, chords are [bar_idx, event_idx, chordname, shorthand] cf get_chords_from_track()
+        passage:
+            - if source is type Composition, passage is a Track containing main lick
+            - Now: mostly data, used when writing final midi
+            - TO-DO: get in a nice form for analysing rhythms, fragments, arpeggios etc.
         
-        # instantiate from comp and attach get_chord_from_Track
+    '''
+    def __init__(self, source=None, chords=None, passage=None, tags=[], name=None):
+        self.ID = int(datetime.now().strftime('%Y%m%d%H%M%S'))
+        self.source = source
+        self.chords = chords
+        self.passage = passage
+        self.name = name
+        if type(tags) != list:
+            tags = [tags]
+        self.tags = tags
+        
+        # instantiate from source (e.g. comp and attach get_chord_from_Track)
         source_type = type(source)
         if source_type == Composition:
-            ch = get_chords_from_track(source.tracks[1]) # 1 if we use the leadsheet template .ly file
+            
+            # chords
+            ch = get_chords_from_track(source.tracks[1]) 
             sh = [c[3] for c in ch]
             print('Detected chords: ', sh[0:3], '...')
             self.chords = ch
             if chords is not None:
                 print('Supplied chords overwrite auto-generated')
                 self.chords = chords
+                
+            # passage
+            print('Passage from composition added')
+            self.passage = source.tracks[2]
 
-    def foo(self):
-        print('bar')
+    def tag(self, note):            
+        if type(note) == list:
+            self.tags += note
+        else:
+            self.tags.append(note)
         
-    def to_midi(self, fp=''):
+    def to_midi(self):
         pass
+    
+    def to_json(self):
+        out = dict()
+        if is_jsonable(self.source):
+            out['source'] = self.source
+        if is_jsonable(self.chords):
+            out['chords'] = self.chords
+        if is_jsonable(str(self.passage)):
+            out['passage'] = str(self.passage)
+        if is_jsonable(self.tags):
+            out['tags'] = self.tags
+        if is_jsonable(self.name):
+            out['name'] = self.name            
+#        print(out.keys())
+        return json.dumps(out)
+        # will need to pull out the relevant parts of chords etc. but watch out for types
+        
+    def store(self, db):
+        'Save the JazzLick (as JSON) to the db'
+        db.insert(json.loads(self.to_json()))
     
     def to_ly(self, fp=''):
         pass
@@ -139,7 +191,7 @@ y_chords = get_chords_from_track(track)
 print(y_chords)
 
 #### NEXT -==========================================> 
-    # 1) combine chords with lick passage, potentially by creating a lick Object to ensure everything meshes together regardless of format
+    # x1) combine chords with lick passage, potentially by creating a lick Object to ensure everything meshes together regardless of format
     # 2) given slice markers, separate different licks
     # 3) store in db 
     # 4) scale degree analysis
