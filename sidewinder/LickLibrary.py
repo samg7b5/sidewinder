@@ -111,6 +111,53 @@ def respell_and_determine(chord):
                     named_chords.append(chords.determine(respelling))
     return named_chords
 
+def temporal_realign_track_bars(track, give_notes=False, give_durations=False):
+    '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)'''
+    notes = [notev[2] for notev in track.get_notes()]
+    durations = [notev[1] for notev in track.get_notes()]
+    
+    # if a duration < 1.0 then we have a conjoined bar
+    # e.g. a rest of duration 0.88888 is the same as 1.0 + 0.125 (i.e. whole plus quarter rest)
+    # because 1/0.8888 = 1.125
+    
+    notes2 = []
+    durations2 = []
+    current_pos = 0
+    for i, duration in enumerate(durations):
+        
+        if duration < 1.0:
+            ones = int(1//duration) # // gives integer part of div
+            remainder = 1/duration - ones
+            
+            # check if we are at the end/start of a new bar
+            if current_pos == current_pos//1:  
+                new_durations = ones*[1.0] + [1/remainder]
+            else: # if we are part way through a bar then the rem comes first
+                new_durations = [1/remainder] + ones*[1.0] 
+                
+            notes2 += (ones+1)*[notes[i]]
+            durations2 += new_durations
+            current_pos += 1/durations[i]
+            
+        else:
+            notes2.append(notes[i])
+            durations2.append(durations[i])
+            current_pos += 1/durations[i]
+
+    t = Track()
+    for i, dur in enumerate(durations2):
+        t.add_notes(notes2[i], durations2[i])
+
+    # outputs
+    if give_notes and give_durations:
+        return t, notes2, durations2
+    elif give_notes:
+        return t, notes2
+    elif give_durations:
+        return t, durations2
+    else:
+        return t
+
 #%%
     
 class JazzLick:
@@ -185,150 +232,8 @@ class JazzLick:
 
 
 
-#%%
-def split_track_at_barnum(track, barnum=1.5, too_long=False): # e.g. halfway through first bar
-    # might also want a version in terms of beats (deals with other meters - see bar.meter)
-    if float(np.floor(barnum)) == float(barnum):
-        return track[int(barnum-1):], track[:int(barnum-1)]
-    else:
-        split_bar = track[int(np.floor(barnum))-1]
-        if type(split_bar) == list:
-            split_bar = Bars_from_list(split_bar)[0]
-            
-        try:
-            while split_bar == []:
-                print('Warning, empty list encountered, should probably filter track in a different fn e.g. temporal_...')
-                track.bars.pop(int(np.floor(barnum))-1)
-                split_bar = track[int(np.floor(barnum))-1]
-                if type(split_bar) == list:
-                    split_bar = Bars_from_list(split_bar)[0]
-        except AttributeError: # split_bar != []
-            pass
-            
-        dur_target = (barnum-int(np.floor(barnum)))*split_bar.meter[0] * (1/split_bar.meter[1])                
-        pos = split_bar[0][0] # start position of first note or rest
-        for i, notev in enumerate(split_bar):
-            # deal with conjoined rests e.g. splitting [[0.0, 0.888, []]] into [[[0.0, 8.0, []]], [[0.0, 1.0, []]]]
-            if 1/notev[1]>=dur_target-pos and (notev[2]==[] or type(notev[2]) == type(None)):
-                print('splitting rest:', notev) 
-                restev = Bar()
-                try:
-                    restev.place_rest(1/(dur_target-pos))
-                except ZeroDivisionError: # dur_target-pos=0 => no rest added (like an infinitely subdivided rest)
-                    pass
-                restev_rem = Bar()
-                try:
-                    restev_rem.place_rest(1/(1/notev[1] - (dur_target-pos)))
-                except ZeroDivisionError:
-                    pass
-#                print(barnum, dur_target, pos, notev)
-                
-                if not too_long:
-                    print('split into {} + {}'.format(restev, restev_rem))
-                    split_bar = [restev] + [restev_rem]
-                else:
-                    print('split into {} + {}'.format(restev_rem, restev))
-                    split_bar = [restev_rem] + [restev]
-                
-                L, R = split_bar[:i+1], split_bar[i+1:]
-            
-            elif pos + 1/notev[1] > dur_target: # if the split would cut a note in half, round down our split point to just before
-                L, R = split_bar[:i], split_bar[i:]
-                break
-            
-            pos += 1/notev[1]
-        
-        try:
-            out = track.bars[:int(np.floor(barnum)-1)]+[L], [R]+track.bars[int(np.floor(barnum)):]
-        except UnboundLocalError:
-            out = track.bars[:int(np.floor(barnum)-1)], track.bars[int(np.floor(barnum)):] # if we didn't ever fill the bar
-        
-        return out
+#%% random utility functions for manipulating bars etc, not the nicest code and may be more suitable in Sidewinder core
 
-def push_or_pull_next_bar(i, track):
-    
-    bar = track[i]
-    if type(bar) == list:
-        bar = Bars_from_list(bar)[0]
-    next_bar = track[i+1]
-    bar_length = sum([1/notev[1] for notev in bar]) * bar.meter[0]*(1/bar.meter[1])
-#    print('bar {} of length {}'.format(i, bar_length))
-   
-    while bar_length < 1:
-        print(f'bar {i} too short ({bar_length})', bar)
-#        print(len(bar))
-#        print('next bar', next_bar)
-        # pull back from the start of the next bar until our length is 1
-        rem = 1 - bar_length
-        back_of_track, next_bar_rem = split_track_at_barnum(track, i+2 + rem)
-#        next_bar_shaved = next_bar_shaved[0] # the remaining bit we need to fill our bar
-#        next_bar_rem = next_bar_rem[0] # what's left in the next bar
-#        next_bar = next_bar_rem
-#        next_notev = next_bar_shaved[0]
-        
-        try:
-            while next_bar_rem[0] == []:
-                next_bar_rem = next_bar_rem[1:]
-        except AttributeError: # comparison with empty list will fail if we are actually bars here
-            pass
-        next_notev = next_bar_rem[0][0]
-        
-        try:
-            bar.place_notes(next_notev[2], next_notev[1])
-        except IndexError:
-            bar.place_notes(None, next_notev[1])
-        bar_length += 1/next_notev[1] * bar.meter[0]*(1/bar.meter[1])
-#        next_bar = next_bar[1:]
-        
-        track = Track_from_list(back_of_track + Bars_from_list(next_bar) + track[i+2:]) # inplace editing while iterating, uh-oh
-            
-    while bar_length > 1:
-        print(f'bar {i} too long ({bar_length})', bar)
-        # push forward into the start of the next bar until our length is 1
-        rem = bar_length - 1
-        back_of_track, excess = split_track_at_barnum(track, i+1 + rem, too_long=True)
-        # excess is the front half of the track, where excess[0] is [[[0.0, 8.0, None]]] and needs upserting into excess[1]
-        # back_of_track is the back half of the track including the split rest bar
-        
-        try:
-            while excess[0] == []:
-                excess = excess[1:]
-        except AttributeError: # comparison with empty list will fail if we are actually bars here
-            pass
-        last_notev = excess[0][0]
-        if type(last_notev[0]) == float:
-            last_notev = excess[0]
-
-        try:
-            if len(excess[1][0])<3:
-                excess[1] = [ev[0] for ev in excess[1]]
-        except IndexError: # no subsequent events
-            pass
-        
-        next_bar = [last_notev] + [[ev[0]+1/last_notev[0][1], ev[1], ev[2]] for ev in excess[1]] # insert and shift everything up
-        
-#        next_bar = track[i+1]
-#        try:
-#            next_bar.place_notes(last_notev[2][0], last_notev[1])
-#        except IndexError:
-#            next_bar.place_notes(None, last_notev[1])
-#        next_bar.notes = [last_notev] + next_bar.notes
-        bar_length += (-1)*1/last_notev[0][1] * bar.meter[0]*(1/bar.meter[1])
-#        print('nb', next_bar)
-        track = Track_from_list(back_of_track + Bars_from_list(next_bar) + track[i+2:]) # inplace editing while iterating, uh-oh
-        
-    return track
-
-def temporal_realign_bars(track):
-    'MIDI_to_Composition can return bars with length longer than a full bar (given as duration < 1.0)'
-    'e.g. | - | r8 ... | -> [[0.0, 1/1.25, []]]'
-    'but we want to be able to navigate bars like [[0.0, 1.0, []]], [[0.0, 8.0, []], ...]'
-    'If we iterate over bars then we can periodically push extra bar content '
-    for i, bar in enumerate(track):
-        track = push_or_pull_next_bar(i, track) # should probably not be editing in place, and should maybe just store the left-hand tail as we iterate through the track
-
-    return track
-        
 def Bars_from_list(listb=[[0.0, 8.0, None],[0.125, 8.0, ['C-5']]]):
     listb = [notev[0] if len(notev) == 1 else notev for notev in listb]    
     listb = [nc if type(notev[0])!=float else notev for notev in listb for nc in notev]
@@ -365,6 +270,7 @@ def fix_track_bar(bar):
 #%% examples - here for dev purposes
     
 if __name__ == 'main':
+    print('If you are seeing this then LickLibrary is running in main!')
     # Load midi generated by Lilypond (Frescobaldi)
     y_comp, y_bpm = midi_file_in.MIDI_to_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out_sib.mid') # generated via Lilypond (Frescobaldi)
     #midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\std_midi_out.mid', 
@@ -378,14 +284,11 @@ if __name__ == 'main':
     split_points = [5, 9, 13, 17, 21, 25, 29, 33, 36.5, 40.5, 45, 49, 53] # bar numbers
     
     track = y_comp.tracks[2]
+    track_temped = temporal_realign_track_bars(track) # need to fix conjoined bars which appear when reading in from midi
     
-    # some of the below will form a good example when finished:
-    # midi files are created fine by ly/sib and can be read in fine, but saving back to disk messes up the timing/measures
-    # let's try to realign everything back to fixed measures - that way we can split midi files into separate licks and do analysis
-    track_temped = temporal_realign_bars(track)
-    track_temped_fix = Track_from_list([unwrapped_bars for bar in track_temped.bars for unwrapped_bars in fix_track_bar(bar)])
-    # --------------->>>>> TO-DO: not yet fixed - need to stop editing track inplace in the functions above
-    midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\track_temped.mid', track_temped_fix) 
+    
+    
+    midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\track_temped.mid', track_temped) 
     
     
     #%%
@@ -400,3 +303,150 @@ if __name__ == 'main':
     # 1) given slice markers, separate different licks
     # overlaying on progressions
     # 2) scale degree analysis e.g. generate more licks and find patterns
+
+
+#%% Obsolete code (for reference)
+    
+#def split_track_at_barnum(track, barnum=1.5, too_long=False): # e.g. halfway through first bar
+#    # might also want a version in terms of beats (deals with other meters - see bar.meter)
+#    if float(np.floor(barnum)) == float(barnum):
+#        return track[int(barnum-1):], track[:int(barnum-1)]
+#    else:
+#        split_bar = track[int(np.floor(barnum))-1]
+#        if type(split_bar) == list:
+#            split_bar = Bars_from_list(split_bar)[0]
+#            
+#        try:
+#            while split_bar == []:
+#                print('Warning, empty list encountered, should probably filter track in a different fn e.g. temporal_...')
+#                track.bars.pop(int(np.floor(barnum))-1)
+#                split_bar = track[int(np.floor(barnum))-1]
+#                if type(split_bar) == list:
+#                    split_bar = Bars_from_list(split_bar)[0]
+#        except AttributeError: # split_bar != []
+#            pass
+#            
+#        dur_target = (barnum-int(np.floor(barnum)))*split_bar.meter[0] * (1/split_bar.meter[1])                
+#        pos = split_bar[0][0] # start position of first note or rest
+#        for i, notev in enumerate(split_bar):
+#            # deal with conjoined rests e.g. splitting [[0.0, 0.888, []]] into [[[0.0, 8.0, []]], [[0.0, 1.0, []]]]
+#            if 1/notev[1]>=dur_target-pos and (notev[2]==[] or type(notev[2]) == type(None)):
+#                print('splitting rest:', notev) 
+#                restev = Bar()
+#                try:
+#                    restev.place_rest(1/(dur_target-pos))
+#                except ZeroDivisionError: # dur_target-pos=0 => no rest added (like an infinitely subdivided rest)
+#                    pass
+#                restev_rem = Bar()
+#                try:
+#                    restev_rem.place_rest(1/(1/notev[1] - (dur_target-pos)))
+#                except ZeroDivisionError:
+#                    pass
+##                print(barnum, dur_target, pos, notev)
+#                
+#                if not too_long:
+#                    print('split into {} + {}'.format(restev, restev_rem))
+#                    split_bar = [restev] + [restev_rem]
+#                else:
+#                    print('split into {} + {}'.format(restev_rem, restev))
+#                    split_bar = [restev_rem] + [restev]
+#                
+#                L, R = split_bar[:i+1], split_bar[i+1:]
+#            
+#            elif pos + 1/notev[1] > dur_target: # if the split would cut a note in half, round down our split point to just before
+#                L, R = split_bar[:i], split_bar[i:]
+#                break
+#            
+#            pos += 1/notev[1]
+#        
+#        try:
+#            out = track.bars[:int(np.floor(barnum)-1)]+[L], [R]+track.bars[int(np.floor(barnum)):]
+#        except UnboundLocalError:
+#            out = track.bars[:int(np.floor(barnum)-1)], track.bars[int(np.floor(barnum)):] # if we didn't ever fill the bar
+#        
+#        return out
+#
+#def push_or_pull_next_bar(i, track):
+#    
+#    bar = track[i]
+#    if type(bar) == list:
+#        bar = Bars_from_list(bar)[0]
+#    next_bar = track[i+1]
+#    bar_length = sum([1/notev[1] for notev in bar]) * bar.meter[0]*(1/bar.meter[1])
+##    print('bar {} of length {}'.format(i, bar_length))
+#   
+#    while bar_length < 1:
+#        print(f'bar {i} too short ({bar_length})', bar)
+##        print(len(bar))
+##        print('next bar', next_bar)
+#        # pull back from the start of the next bar until our length is 1
+#        rem = 1 - bar_length
+#        back_of_track, next_bar_rem = split_track_at_barnum(track, i+2 + rem)
+##        next_bar_shaved = next_bar_shaved[0] # the remaining bit we need to fill our bar
+##        next_bar_rem = next_bar_rem[0] # what's left in the next bar
+##        next_bar = next_bar_rem
+##        next_notev = next_bar_shaved[0]
+#        
+#        try:
+#            while next_bar_rem[0] == []:
+#                next_bar_rem = next_bar_rem[1:]
+#        except AttributeError: # comparison with empty list will fail if we are actually bars here
+#            pass
+#        next_notev = next_bar_rem[0][0]
+#        
+#        try:
+#            bar.place_notes(next_notev[2], next_notev[1])
+#        except IndexError:
+#            bar.place_notes(None, next_notev[1])
+#        bar_length += 1/next_notev[1] * bar.meter[0]*(1/bar.meter[1])
+##        next_bar = next_bar[1:]
+#        
+#        track = Track_from_list(back_of_track + Bars_from_list(next_bar) + track[i+2:]) # inplace editing while iterating, uh-oh
+#            
+#    while bar_length > 1:
+#        print(f'bar {i} too long ({bar_length})', bar)
+#        # push forward into the start of the next bar until our length is 1
+#        rem = bar_length - 1
+#        back_of_track, excess = split_track_at_barnum(track, i+1 + rem, too_long=True)
+#        # excess is the front half of the track, where excess[0] is [[[0.0, 8.0, None]]] and needs upserting into excess[1]
+#        # back_of_track is the back half of the track including the split rest bar
+#        
+#        try:
+#            while excess[0] == []:
+#                excess = excess[1:]
+#        except AttributeError: # comparison with empty list will fail if we are actually bars here
+#            pass
+#        last_notev = excess[0][0]
+#        if type(last_notev[0]) == float:
+#            last_notev = excess[0]
+#
+#        try:
+#            if len(excess[1][0])<3:
+#                excess[1] = [ev[0] for ev in excess[1]]
+#        except IndexError: # no subsequent events
+#            pass
+#        
+#        next_bar = [last_notev] + [[ev[0]+1/last_notev[0][1], ev[1], ev[2]] for ev in excess[1]] # insert and shift everything up
+#        
+##        next_bar = track[i+1]
+##        try:
+##            next_bar.place_notes(last_notev[2][0], last_notev[1])
+##        except IndexError:
+##            next_bar.place_notes(None, last_notev[1])
+##        next_bar.notes = [last_notev] + next_bar.notes
+#        bar_length += (-1)*1/last_notev[0][1] * bar.meter[0]*(1/bar.meter[1])
+##        print('nb', next_bar)
+#        track = Track_from_list(back_of_track + Bars_from_list(next_bar) + track[i+2:]) # inplace editing while iterating, uh-oh
+#        
+#    return track
+#
+#def temporal_realign_bars(track):
+#    'MIDI_to_Composition can return bars with length longer than a full bar (given as duration < 1.0)'
+#    'e.g. | - | r8 ... | -> [[0.0, 1/1.25, []]]'
+#    'but we want to be able to navigate bars like [[0.0, 1.0, []]], [[0.0, 8.0, []], ...]'
+#    'If we iterate over bars then we can periodically push extra bar content '
+#    for i, bar in enumerate(track):
+#        track = push_or_pull_next_bar(i, track) # should probably not be editing in place, and should maybe just store the left-hand tail as we iterate through the track
+#
+#    return track
+        
