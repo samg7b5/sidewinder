@@ -111,20 +111,26 @@ def respell_and_determine(chord):
                     named_chords.append(chords.determine(respelling))
     return named_chords
 
-def temporal_realign_track_bars(track, give_notes=False, give_durations=False):
+def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False):
     '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)'''
     notes = [notev[2] for notev in track.get_notes()]
     durations = [notev[1] for notev in track.get_notes()]
     
-    # if a duration < 1.0 then we have a conjoined bar
-    # e.g. a rest of duration 0.88888 is the same as 1.0 + 0.125 (i.e. whole plus quarter rest)
-    # because 1/0.8888 = 1.125
+    # output will get out of alignment if we start mid-bar, let's workaround by padding with rests at start
+    if pickup == 0: # input sanitising
+        pickup = None
+    if pickup is not None:
+        notes = [[]] + notes
+        durations = [1/pickup] + durations
     
     notes2 = []
     durations2 = []
-    current_pos = 0
+    current_pos = 0 # maybe this should be set negative in the case of a pickup bar / upbeat ? e.g. determined by split pos
     for i, duration in enumerate(durations):
-        
+    
+        # if a duration < 1.0 then we have a conjoined bar
+        # e.g. a rest of duration 0.88888 is the same as 1.0 + 0.125 (i.e. whole plus quarter rest)
+        # because 1/0.8888 = 1.125
         if duration < 1.0:
             ones = int(1//duration) # // gives integer part of div
             remainder = 1/duration - ones
@@ -266,6 +272,68 @@ def fix_track_bar(bar):
             return bar
     return [bar]      
 
+def split_track(track, split_points):
+    track_splits = []
+    boundaries = [[z[0],z[1]] for z in list(zip([1]+split_points, split_points+[99999]))]
+
+    for pair in boundaries:
+        track_piece = []
+
+        if (pair[0]//1 != pair[0]) or (pair[1]//1 != pair[1]): # if a boundary start or end is a fraction
+            if pair[0]//1 != pair[0]: # if we start mid-bar
+                start_partialbar = split_bar(track[int(pair[0]//1-1)], pair[0] - pair[0]//1)[1]
+                pair[0] = int(pair[0]//1 + 1)
+                track_piece.append(start_partialbar) 
+            if pair[1]//1 != pair[1]: # if we end mid-bar
+                end_partialbar = split_bar(track[int(pair[1]//1-1)], pair[1] - pair[1]//1)[0]
+                pair[1] = int(pair[1]//1)
+                epb = True
+            track_piece.append(track[pair[0]-1:pair[1]-1])
+            if epb:
+                track_piece.append(end_partialbar)
+                epb = False
+            #track_piece = [b for bar_list in track_piece for b in bar_list]
+            track_piece = flatten(track_piece)
+            track_splits.append(track_piece)
+        else:
+            track_splits.append(track[pair[0]-1:pair[1]-1])   
+    
+    out = []
+    for i, lick in enumerate(track_splits):
+        out_track = Track_from_list(lick)
+        pickup = split_points[i-1]-split_points[i-1]//1
+        if pickup == 0:
+            pickup = None
+        out_track = temporal_realign_track_bars(out_track, pickup=pickup) 
+        out.append(out_track)
+    
+    return out 
+
+def flatten(A):
+    rt = []
+    for i in A:
+        if isinstance(i,list): rt.extend(flatten(i))
+        else: rt.append(i)
+    return rt
+
+def split_bar(bar, split_point):
+    current_pos = 0
+    bar_l = Bar()
+    
+    if 1/bar[0][1] > split_point: # if the first event crosses the split point (e.g. a conjoined rest)
+        bar_l.place_notes(bar[0][2], 1/split_point)
+        current_pos += split_point
+        bar = [[bar[0][0], 1/(1/bar[0][1]-split_point), bar[0][2]]] + bar[1:] 
+    
+    while current_pos < split_point:
+        bar_l.place_notes(bar[0][2], bar[0][1])
+        current_pos += 1/bar[0][1]
+        bar = bar[1:]
+    bar_r = bar   
+    bar_r = [fix_track_bar([b])[0] for b in bar_r]
+    
+    return bar_l, bar_r
+    
 
 #%% examples - here for dev purposes
     
@@ -281,14 +349,14 @@ if __name__ == 'main':
     y_chords = get_chords_from_track(track)
     
     # split composition into different licks:
-    split_points = [5, 9, 13, 17, 21, 25, 29, 33, 36.5, 40.5, 45, 49, 53] # bar numbers
+    split_points = [5, 9, 13, 17, 21, 25, 29, 33, 36.5, 40.5, 45, 49, 53] # bar numbers 
     
     track = y_comp.tracks[2]
-    track_temped = temporal_realign_track_bars(track) # need to fix conjoined bars which appear when reading in from midi
+    track_temped = temporal_realign_track_bars(track) # fix conjoined bars from midi in: now bar i = track[i-1]
+    track_splits = split_track(track_temped, split_points)
     
-    
-    
-    midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\track_temped.mid', track_temped) 
+    for i, lick_track in enumerate(track_splits):
+        midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\garlick_'+str(i)+'.mid', lick_track)
     
     
     #%%
