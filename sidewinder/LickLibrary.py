@@ -356,7 +356,7 @@ if __name__ == 'main':
     track_splits = split_track(track_temped, split_points)
     
     for i, lick_track in enumerate(track_splits):
-        midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\garlick_'+str(i)+'.mid', lick_track)
+        midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\lick_'+str(i)+'.mid', lick_track)
     
     
     #%%
