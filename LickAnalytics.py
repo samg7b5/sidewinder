@@ -33,7 +33,7 @@ scale_gens= {'major': scales.Major,
              'harmonic minor':scales.HarmonicMinor,
              'melodic minor':scales.MelodicMinor,
              'octatonic':scales.Octatonic, # WH diminished
-             'minor neapolitan':scales.MinorNeapolitan,
+             'minor neapolitan':scales.MinorNeapolitan, # this is the only scale that I'm not familiar with :)
              'diminished':scales.Octatonic,
              'whole-half diminished':scales.Octatonic,
              'half-whole diminished':scales.HalfWholeDiminished,
@@ -67,6 +67,7 @@ scale_lengths= {'octatonic':8,
                 'whole tone':6,
                 'pentatonic':5,
                 'minor pentatonic':5,
+                'blues': 6,
                 'chromatic':12
                 }
 
@@ -83,11 +84,7 @@ chromatic_scale_degrees = [['1'],
                            ['b7'],
                            ['7']]
                            
-
-notes = [notev[2] for notev in track.get_notes()] # gives a list of NoteContainers
-note_names = [[note.name for note in nc] for nc in notes] # since each nc could contain multiple Note()'s
-
-def note_to_scale_degree(note, key, scale, chromatic_options=False): # note as str for simplicity e.g. note.name
+def note_to_scale_degree(note, key, scale, label_nondiatonic=True, chromatic_options=False): # note as str for simplicity e.g. note.name
     # get scale
     scale = scale.lower() # input sanitisation 
     try:
@@ -112,7 +109,10 @@ def note_to_scale_degree(note, key, scale, chromatic_options=False): # note as s
         try: 
             scale_idx = scale_notes.index(synonyms[note])
         except (KeyError, ValueError):
-            return False # not in scale
+            if label_nondiatonic:
+                return (False, note_to_scale_degree(note, key, 'chromatic', chromatic_options=chromatic_options)) # not in scale
+            else:
+                return False
     
     if scale == 'chromatic':
         if chromatic_options:
@@ -131,3 +131,9 @@ def scale_as_degrees(scale, **kwargs):
         scale_length = 7
     scale_notes = list(scale_gens[scale]('C').generate(scale_length))
     return [note_to_scale_degree(note, 'C', 'chromatic', **kwargs) for note in scale_notes]
+
+def track_to_degrees(track, key, scale, **kwargs):
+    notes = [notev[2] for notev in track.get_notes()] # gives a list of NoteContainers
+    note_names = [[note.name for note in nc] for nc in notes] # since each nc could contain multiple Note()'s
+    return [[note_to_scale_degree(x, key, scale, **kwargs) for x in nc] for nc in note_names]
+
