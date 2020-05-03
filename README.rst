@@ -1,4 +1,4 @@
-Sidewinder:snake:
+Sidewinder:snake::saxophone::robot:
 ========================
 
 Sidewinder is a programming library for composition and jazz theory.

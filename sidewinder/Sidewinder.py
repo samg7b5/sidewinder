@@ -483,9 +483,6 @@ def shorthand_to_numerals(progression='Cmaj7, G-7, C7, Fmaj7, Bb7', key='C'):
         
     proc_progression = [[get_note(chord), chord[len(get_note(chord)):]] for chord in progression]
     
-#    scale = scales.ionian(key) # default to major
-#    if mode == 'minor':
-#        scale = scales.aeolian(key)
     scale = scales.Chromatic(key)
     scale_list = []
     for i in range(0, len(scale)-1):
