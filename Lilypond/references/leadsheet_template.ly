@@ -4,6 +4,7 @@
 melody = \relative c'' { % sets reference starting pitch where ' denotes 8va
      \key c \major
      \time 4/4
+     \tempo 4 = 120
      r8 c16 b bes8 a g f d dis
      e g d? des c bes_"enclosure" g gis
      a1
