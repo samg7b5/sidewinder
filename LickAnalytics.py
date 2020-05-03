@@ -123,3 +123,11 @@ def note_to_scale_degree(note, key, scale, chromatic_options=False): # note as s
     else:
         return scale_idx + 1 # e.g. output of 7 means this is the 7th (major or minor) diatonic to the given scale 
     
+def scale_as_degrees(scale, **kwargs):
+    scale = scale.lower()
+    try:
+        scale_length = scale_lengths[scale]
+    except KeyError:
+        scale_length = 7
+    scale_notes = list(scale_gens[scale]('C').generate(scale_length))
+    return [note_to_scale_degree(note, 'C', 'chromatic', **kwargs) for note in scale_notes]
