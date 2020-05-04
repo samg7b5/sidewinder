@@ -56,7 +56,14 @@ scale_gens= {'major': scales.Major,
              'altered': scales.AlteredDominant,
              'altered dominant': scales.AlteredDominant,
              'pentatonic': scales.Pentatonic,
-             'minor pentatonic': scales.MinorPentatonic
+             'minor pentatonic': scales.MinorPentatonic,
+             'major bebop':scales.MajorBebop,
+             'dorian bebop':scales.DorianBebop,
+             'alt dorian bebop':scales.DorianBebopAlt, # alternative (not altered)
+             'mixolydian bebop':scales.MixolydianBebop,
+             'dominant bebop':scales.MixolydianBebop,
+             'melodic minor bebop':scales.MelodicMinorBebop,
+             'harmonic minor bebop':scales.HarmonicMinorBebop
              }   
 
 # if different to the standard 7 note (plus octave) scale
@@ -68,7 +75,14 @@ scale_lengths= {'octatonic':8,
                 'pentatonic':5,
                 'minor pentatonic':5,
                 'blues': 6,
-                'chromatic':12
+                'chromatic':12,
+                'major bebop':8,
+                'dorian bebop':8,
+                'alt dorian bebop':8, 
+                'mixolydian bebop':8,
+                'dominant bebop':8,
+                'melodic minor bebop':8,
+                'harmonic minor bebop':8
                 }
 
 chromatic_scale_degrees = [['1'],
