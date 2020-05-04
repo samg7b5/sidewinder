@@ -74,5 +74,5 @@ y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpar
 
 #%% Generative
 
-# e.g. generate scale degree patterns across any scale (like 7 1 3 5 7 on all modes, for ex)
+# e.g. generate scale degree patterns across any scale (like 7 1 3 5 7 on all modes, for ex) - cf LickAnalytics.py
 
