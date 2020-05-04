@@ -59,11 +59,13 @@ scale_gens= {'major': scales.Major,
              'minor pentatonic': scales.MinorPentatonic,
              'major bebop':scales.MajorBebop,
              'dorian bebop':scales.DorianBebop,
-             'alt dorian bebop':scales.DorianBebopAlt, # alternative (not altered)
+             'alt dorian bebop':scales.DorianBebopAlt, # "alternative" (not "altered")
              'mixolydian bebop':scales.MixolydianBebop,
              'dominant bebop':scales.MixolydianBebop,
              'melodic minor bebop':scales.MelodicMinorBebop,
-             'harmonic minor bebop':scales.HarmonicMinorBebop
+             'harmonic minor bebop':scales.HarmonicMinorBebop,
+             'super-ultra-hyper-mega-meta-lydian': scales.SuperUltraHyperMegaMetaLydian, # no generate() method
+             'super-ultra-hyper-mega-meta-mixolydian': scales.SuperUltraHyperMegaMetaMixolydian # no generate() method
              }   
 
 # if different to the standard 7 note (plus octave) scale
