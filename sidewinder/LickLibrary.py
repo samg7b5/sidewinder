@@ -111,8 +111,11 @@ def respell_and_determine(chord):
                     named_chords.append(chords.determine(respelling))
     return named_chords
 
-def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False):
-    '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)'''
+def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False, debug=False):
+    '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)
+    
+    Warning: do not begin a bar with an acciacatura as current_pos will get out of sync (acciacatura implies rests and anticipation which gets confusing for timing)
+    (at least in the case where the previous bar ends with a rest, not tested otherwise)'''
     notes = [notev[2] for notev in track.get_notes()]
     durations = [notev[1] for notev in track.get_notes()]
     
@@ -136,7 +139,9 @@ def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durat
             remainder = 1/duration - ones
             
             # check if we are at the end/start of a new bar
-            if current_pos == current_pos//1:  
+            if round(current_pos*2**10)/2**10 == current_pos//1 or round(current_pos*2**10)/2**10 == current_pos//1 + 1:  
+                if debug:
+                    print('splitting rest',i)
                 new_durations = ones*[1.0] + [1/remainder]
             else: # if we are part way through a bar then the rem comes first
                 new_durations = [1/remainder] + ones*[1.0] 
@@ -146,12 +151,24 @@ def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durat
             current_pos += 1/durations[i]
             
         else:
+            if debug:
+                print(i, 'current_pos',current_pos, round(current_pos*2**10)/2**10, 1/durations[i], current_pos + 1/durations[i])
             notes2.append(notes[i])
             durations2.append(durations[i])
             current_pos += 1/durations[i]
 
     t = Track()
+    if debug:
+        t2 = Track()
+        print(len(durations2), durations2)
+        print(len(notes2), notes)
     for i, dur in enumerate(durations2):
+        if debug:
+            if not t2.add_notes(notes2[i], durations2[i]):
+                print('')
+                print(f'failed to add {notes2[i]}, {durations2[i]} to on index {i}')
+                print(i, t2.bars[-3:])
+                print('')
         t.add_notes(notes2[i], durations2[i])
 
     # outputs
@@ -204,6 +221,9 @@ class JazzLick:
             # passage
             print('Passage from composition added')
             self.passage = source.tracks[passage_track]
+        
+        elif source_type != type(None):
+            print('unrecognised source type')
 
     def tag(self, note):            
         if type(note) == list:
@@ -212,8 +232,12 @@ class JazzLick:
             self.tags.append(note)
         
     def to_midi(self, fp=''):
-        midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
-                                self.source, repeat=0, verbose=True)
+        if type(self.source) == Composition:
+            midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
+                                            self.source, repeat=0, verbose=True)
+        elif type(self.passage) == Track:
+            midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
+                                            self.passage, repeat=0, verbose=True)
     
     def to_json(self):
         out = dict()

@@ -138,6 +138,7 @@ def note_to_scale_degree(note, key, scale, label_nondiatonic=True, chromatic_opt
         return scale_idx + 1 # e.g. output of 7 means this is the 7th (major or minor) diatonic to the given scale 
     
 def scale_as_degrees(scale, **kwargs):
+    '''returns the chromatic description of a scale, e.g. mixolydian as 1 2(9) 3 4 5 6 b7'''
     scale = scale.lower()
     try:
         scale_length = scale_lengths[scale]
