@@ -4,7 +4,7 @@ Created on Sat Apr 25 11:00:34 2020
 
 @author: Sam
 """
-from Sidewinder import synonyms, synonyms_r
+from utilities import synonyms, synonyms_r
 synonyms.update(synonyms_r)
 
 from mingus.containers import Track, Bar

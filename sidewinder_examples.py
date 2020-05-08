@@ -5,7 +5,7 @@ Created on Mon Dec 30 19:38:09 2019
 @author: Sam
 """
 import sidewinder as sw
-from sidewinder.LickLibrary import JazzLick, get_chords_from_track
+from sidewinder.LickLibrary import JazzLick #, get_chords_from_track
 
 from mingus import *
 
@@ -25,7 +25,7 @@ misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
               1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
 
 # create a midi of the chords
-t = sw.chords_to_midi(misty, misty_durs, name='midi_out\\misty_shellrootless', key='Eb', voicing='rootless', type='A') # includes voicing kwargs
+t = sw.chords_to_midi(misty, misty_durs, name='..\\midi_out\\misty_shellrootless', key='Eb', voicing='rootless', type='A') # includes voicing kwargs
 # detect all 2-5's
 two_fives = sw.detect_numeral_pattern(misty, pattern=['II-7','V7'])
 
@@ -67,6 +67,9 @@ robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
 
 ## Importing jazz licks from midi into the library
 #### see LickLibrary.py (should be moved here in future)
+
+
+
 
 #%%
 y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
