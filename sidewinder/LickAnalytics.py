@@ -6,7 +6,7 @@ Temporary structure for functions to process and analyse licks (melodic lines)
 
 @author: Sam
 """
-from Sidewinder import synonyms, synonyms_r
+from utilities import synonyms, synonyms_r
 synonyms.update(synonyms_r)
 
 malformed_double_accidentals = {'B##':'C#',
