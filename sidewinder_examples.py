@@ -5,7 +5,7 @@ Created on Mon Dec 30 19:38:09 2019
 @author: Sam
 """
 import sidewinder as sw
-from sidewinder.LickLibrary import JazzLick #, get_chords_from_track
+from sidewinder.lick_library import JazzLick #, get_chords_from_track
 
 from mingus import *
 

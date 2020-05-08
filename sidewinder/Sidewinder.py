@@ -4,7 +4,7 @@ Created on Sat Oct 12 21:11:45 2019
 
 @author: Sam
 """
-#from . import LickLibrary
+#from . import lick_library
 
 from mingus.containers import Note
 import mingus.core.progressions as progressions
