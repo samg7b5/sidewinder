@@ -6,7 +6,7 @@ Temporary structure for functions to process and analyse licks (melodic lines)
 
 @author: Sam
 """
-from Sidewinder import synonyms, synonyms_r
+from utilities import synonyms, synonyms_r
 synonyms.update(synonyms_r)
 
 malformed_double_accidentals = {'B##':'C#',
@@ -56,7 +56,16 @@ scale_gens= {'major': scales.Major,
              'altered': scales.AlteredDominant,
              'altered dominant': scales.AlteredDominant,
              'pentatonic': scales.Pentatonic,
-             'minor pentatonic': scales.MinorPentatonic
+             'minor pentatonic': scales.MinorPentatonic,
+             'major bebop':scales.MajorBebop,
+             'dorian bebop':scales.DorianBebop,
+             'alt dorian bebop':scales.DorianBebopAlt, # "alternative" (not "altered")
+             'mixolydian bebop':scales.MixolydianBebop,
+             'dominant bebop':scales.MixolydianBebop,
+             'melodic minor bebop':scales.MelodicMinorBebop,
+             'harmonic minor bebop':scales.HarmonicMinorBebop,
+             'super-ultra-hyper-mega-meta-lydian': scales.SuperUltraHyperMegaMetaLydian, # no generate() method
+             'super-ultra-hyper-mega-meta-mixolydian': scales.SuperUltraHyperMegaMetaMixolydian # no generate() method
              }   
 
 # if different to the standard 7 note (plus octave) scale
@@ -68,7 +77,14 @@ scale_lengths= {'octatonic':8,
                 'pentatonic':5,
                 'minor pentatonic':5,
                 'blues': 6,
-                'chromatic':12
+                'chromatic':12,
+                'major bebop':8,
+                'dorian bebop':8,
+                'alt dorian bebop':8, 
+                'mixolydian bebop':8,
+                'dominant bebop':8,
+                'melodic minor bebop':8,
+                'harmonic minor bebop':8
                 }
 
 chromatic_scale_degrees = [['1'],
@@ -124,6 +140,7 @@ def note_to_scale_degree(note, key, scale, label_nondiatonic=True, chromatic_opt
         return scale_idx + 1 # e.g. output of 7 means this is the 7th (major or minor) diatonic to the given scale 
     
 def scale_as_degrees(scale, **kwargs):
+    '''returns the chromatic description of a scale, e.g. mixolydian as 1 2(9) 3 4 5 6 b7'''
     scale = scale.lower()
     try:
         scale_length = scale_lengths[scale]

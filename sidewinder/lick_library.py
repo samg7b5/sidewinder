@@ -4,7 +4,7 @@ Created on Sat Apr 25 11:00:34 2020
 
 @author: Sam
 """
-from Sidewinder import synonyms, synonyms_r
+from utilities import synonyms, synonyms_r
 synonyms.update(synonyms_r)
 
 from mingus.containers import Track, Bar
@@ -111,8 +111,11 @@ def respell_and_determine(chord):
                     named_chords.append(chords.determine(respelling))
     return named_chords
 
-def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False):
-    '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)'''
+def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False, debug=False):
+    '''Realign notes within bar lines (e.g. splitting rest events which cross barlines after reading in from midi)
+    
+    Warning: do not begin a bar with an acciacatura as current_pos will get out of sync (acciacatura implies rests and anticipation which gets confusing for timing)
+    (at least in the case where the previous bar ends with a rest, not tested otherwise)'''
     notes = [notev[2] for notev in track.get_notes()]
     durations = [notev[1] for notev in track.get_notes()]
     
@@ -136,7 +139,9 @@ def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durat
             remainder = 1/duration - ones
             
             # check if we are at the end/start of a new bar
-            if current_pos == current_pos//1:  
+            if round(current_pos*2**10)/2**10 == current_pos//1 or round(current_pos*2**10)/2**10 == current_pos//1 + 1:  
+                if debug:
+                    print('splitting rest',i)
                 new_durations = ones*[1.0] + [1/remainder]
             else: # if we are part way through a bar then the rem comes first
                 new_durations = [1/remainder] + ones*[1.0] 
@@ -146,12 +151,24 @@ def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durat
             current_pos += 1/durations[i]
             
         else:
+            if debug:
+                print(i, 'current_pos',current_pos, round(current_pos*2**10)/2**10, 1/durations[i], current_pos + 1/durations[i])
             notes2.append(notes[i])
             durations2.append(durations[i])
             current_pos += 1/durations[i]
 
     t = Track()
+    if debug:
+        t2 = Track()
+        print(len(durations2), durations2)
+        print(len(notes2), notes)
     for i, dur in enumerate(durations2):
+        if debug:
+            if not t2.add_notes(notes2[i], durations2[i]):
+                print('')
+                print(f'failed to add {notes2[i]}, {durations2[i]} to on index {i}')
+                print(i, t2.bars[-3:])
+                print('')
         t.add_notes(notes2[i], durations2[i])
 
     # outputs
@@ -204,6 +221,9 @@ class JazzLick:
             # passage
             print('Passage from composition added')
             self.passage = source.tracks[passage_track]
+        
+        elif source_type != type(None):
+            print('unrecognised source type')
 
     def tag(self, note):            
         if type(note) == list:
@@ -212,8 +232,12 @@ class JazzLick:
             self.tags.append(note)
         
     def to_midi(self, fp=''):
-        midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
-                                self.source, repeat=0, verbose=True)
+        if type(self.source) == Composition:
+            midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
+                                            self.source, repeat=0, verbose=True)
+        elif type(self.passage) == Track:
+            midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out.mid', 
+                                            self.passage, repeat=0, verbose=True)
     
     def to_json(self):
         out = dict()
@@ -334,33 +358,49 @@ def split_bar(bar, split_point):
     
     return bar_l, bar_r
     
+#%% lick ingestion workflow
+    
+def split_track_chords(chords, split_points):
+    return [chords[int(i-1):int(j-1)] for i, j in zip([1]+split_points, split_points+[99999])]
+
+def licks_from_track(track, chords, split_points, shared_tags=[''], individual_tags=None):
+    if individual_tags == None:
+        individual_tags = [[] for i in range(len(split_points)+1)]
+      
+    track = temporal_realign_track_bars(track) # fix conjoined bars from midi in: now bar i = track[i-1]
+    track_splits = split_track(track, split_points)
+#    for i, lick_track in enumerate(track_splits):
+#        midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\lick_'+str(i)+'.mid', lick_track)
+    
+    track_chords = split_track_chords(chords, split_points)
+    
+    licks = []
+    for i, lick in enumerate(track_splits):
+        y_Obj = JazzLick(passage=track_splits[i], chords=track_chords[i], tags=shared_tags+individual_tags[i])
+        licks.append(y_Obj)
+        
+    return licks  
 
 #%% examples - here for dev purposes
     
 if __name__ == 'main':
     print('If you are seeing this then LickLibrary is running in main!')
     # Load midi generated by Lilypond (Frescobaldi)
-    y_comp, y_bpm = midi_file_in.MIDI_to_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\midi_out_sib.mid') # generated via Lilypond (Frescobaldi)
+    y_comp, y_bpm = midi_file_in.MIDI_to_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\jiminpark\20 Licks in Jazz 251.mid') # generated via Lilypond (Frescobaldi)
     #midi_file_out.write_Composition(r'C:\Users\Sam\Documents\Sidewinder\local files\std_midi_out.mid', 
     #                                y_comp, repeat=0, verbose=True)
-    
     #analyse_composition(y_comp)
-    track = y_comp.tracks[1]
-    y_chords = get_chords_from_track(track)
     
-    # split composition into different licks:
     split_points = [5, 9, 13, 17, 21, 25, 29, 33, 36.5, 40.5, 45, 49, 53] # bar numbers 
+    shared_tags = ['251','major','jiminpark']
+    individual_tags = [[] for i in range(9)] + 2*[['pickup']] + [[] for i in range(3)]
     
-    track = y_comp.tracks[2]
-    track_temped = temporal_realign_track_bars(track) # fix conjoined bars from midi in: now bar i = track[i-1]
-    track_splits = split_track(track_temped, split_points)
-    
-    for i, lick_track in enumerate(track_splits):
-        midi_file_out.write_Track(r'C:\Users\Sam\Documents\Sidewinder\local files\lick_'+str(i)+'.mid', lick_track)
-    
+    licks = licks_from_track(y_comp.tracks[2], get_chords_from_track(y_comp.tracks[1]), split_points,
+                             shared_tags, individual_tags)
+       
     
     #%%
-    y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
+    y_Obj = JazzLick(source=y_comp, chords=get_chords_from_track(y_comp.tracks[1]), tags=['251', 'major', 'jiminpark'])
     #y_Obj.to_midi()
     #y_Obj.store(db)
     #y_Obj.tag(['4 bars','quaver lines'])
