@@ -2,6 +2,7 @@ Sidewinder:snake::saxophone::robot:
 ========================
 
 Sidewinder is a programming library for composition and jazz theory.
+
 bspaans/python-mingus is used as a foundation for musical logic and MIDI support.
 
 Current features:
