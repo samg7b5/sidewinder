@@ -9,7 +9,7 @@ from sidewinder.lick_library import JazzLick #, get_chords_from_track
 
 from mingus import *
 
-#%% General
+#%% Playing with progressions and standards
 
 # 1. Numerals -> midi
 misty = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
@@ -42,12 +42,12 @@ tb = sw.chords_to_bassline_midi(giant_steps, giant_steps_durs, name='midi_out\\g
 
 
 # Combining 1 & 2:
-# input chord symbols (e.g. from Real Book) and perform roman numeral analysis:
+# input chord symbols and perform roman numeral analysis:
 gs_numerals = sw.shorthand_to_numerals(giant_steps, key='A')
 two_fives = sw.detect_numeral_pattern(gs_numerals, pattern=['II-7','V7'])
 
 
-#%%
+# other examples
 sentimental = 'E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, Ab7, Gmaj7, F-7, Bb7, Ebmaj7, C-7, F-7, Bb7, Ebmaj7, C7, F7, Bb7, Ebmaj7, C-7, F-7, Bb7, A-7, D7, E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, D7b9, Gmaj7'
 sentimental_durs = [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 2, 4, 4] + 6*[2, 2] + [1, 1] + [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 1]
 
@@ -63,15 +63,26 @@ blueingreen_durs = [1,1,2,2,2,2,1,1,1,1,1,1]
 robin = 'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' +'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' + 'B6, C7#5, C#13, C7#5, Bmaj9, Abmaj9, Bmaj9, C#m11b5, F#7, ' + 'C#m9, C#m11b5, F#m7b5'
 robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
 
-#%% LickLibrary examples
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#%% Developing melodic repertoire with LickLibrary
 
 ## Importing jazz licks from midi into the library
 #### see LickLibrary.py (should be moved here in future)
 
-
-
-
-#%%
 y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
 
 
