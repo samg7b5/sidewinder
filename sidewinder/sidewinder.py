@@ -45,10 +45,7 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
         - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
     '''
 
-    # Pre-processing and parsing
-    if name == 'midi_out\\untitled':
-        name += datetime.now().strftime('%Y%m%d%H%M%S')
-    
+    # TO-DO: factor out PROGRESSION HANDLING logic
     progression = utilities.parse_progression(progression)
     
     if durations is not None and not len(durations) == len(progression):
@@ -58,8 +55,11 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
         
     if progression[0][0] in ['I', 'V', 'i', 'v']:
         prog_type = 'numerals'
-    
-    # Apply voicings 
+
+
+        
+        
+    # TO-DO: factor out VOICINGS logic  
     if voicing == 'smooth':
         voiced_chords = utilities.smooth_voice_leading(progression, durations, prog_type)
     elif voicing == 'shell':
@@ -67,18 +67,26 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
     elif voicing == 'rootless':
         voiced_chords = utilities.rootless_voice(progression, durations, prog_type, **kwargs)
 
-    t = utilities.chords_to_track(voiced_chords, durations)
+    t = utilities.chords_to_track(voiced_chords, durations) # REFACTORING: where does this line go? potentially part as 'I want output X' logic within overall workflow (which would also include midi as an option)
 
-    # Export
+    
+    
+    
+    
+    # MIDI logic
+    if name == 'midi_out\\untitled':
+        name += datetime.now().strftime('%Y%m%d%H%M%S')    
+
     if save:
         midi_file_out.write_Track(f'{name}.mid', t)
         print(f'Saved: {name}.mid')
     return t
 
 def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walking=True, name='midi_out\\bassline', key='C', save=True):
-    if name == 'midi_out\\bassline':
-        name += datetime.now().strftime('%Y%m%d%H%M%S')
         
+    # REFACTORING: take inspiration from chords_to_midi()
+    
+    # PROGRESSION logic
     progression = utilities.parse_progression(progression)
     
     if durations is not None and not len(durations) == len(progression):
@@ -90,16 +98,22 @@ def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walk
         progression = [progressions.to_chords(chord)[0] for chord in progression]
         progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
         
+        
+    # REFACTORING: this looks different to progressions, is this separate chord logic? looks like a raw mingus import actually, so be clever in where this goes (maybe as part of the overall workflow logic)
     chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
     
+    
+    # REFACTORING: having a specific _bassline function seems like a quick hack - now we should generalise to horizontal composition (where voicings are vertical composition)
+    # for chords_to_track refactoring, see function above (tease apart 'horizontal' (eg walking) and 'output' (eg track->midi) logic/choices)
     bassline = [Note(chord[0], octave=3) for chord in chords_]
     t = utilities.chords_to_track(bassline, durations)
-    
     if walking:
         bassline, durations = utilities.create_walking_bassline(chords_, durations)
         t = utilities.chords_to_track(bassline, durations)
     
-    # Export
+    # MIDI logic
+    if name == 'midi_out\\bassline':
+        name += datetime.now().strftime('%Y%m%d%H%M%S')
     if save:
         midi_file_out.write_Track(f'{name}.mid', t)
         print(f'Saved: {name}.mid')
@@ -113,10 +127,14 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
     Input progression should be in numeral format
     Transposing option is to detect the pattern outside of the base key
     '''
-    # parsing
+    # REFACTORING: PROGRESSION logic
     progression = utilities.parse_progression(progression)
     pattern = utilities.parse_progression(pattern)
     
+    
+    
+    
+    # REFACTORING: looks like we can keep the rest of the code as a detect_numeral_pattern Progression method 
     window_size = len(pattern)
     
     hits = []
@@ -140,16 +158,23 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
         
     return hits
         
+    
+    
+    
 
 def shorthand_to_numerals(progression='Cmaj7, G-7, C7, Fmaj7, Bb7', key='C'):
+    
+    # PROGRESSION logic
     progression = utilities.parse_progression(progression)
     
+    # REFACTORING: -> utilities?
     def get_note(symbol):
         if symbol[1] == '#' or symbol[1] == 'b':
             return symbol[0:2]
         else:
             return symbol[0]
         
+    # is this PROGRESSION logic too or should it be kept here as function logic? I think the rest of this function needs a round of annotate -> understand -> decide on refactor or retain as function (as Progression method most likely)
     proc_progression = [[get_note(chord), chord[len(get_note(chord)):]] for chord in progression]
     
     scale = scales.Chromatic(key)
