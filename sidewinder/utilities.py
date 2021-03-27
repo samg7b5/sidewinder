@@ -293,7 +293,9 @@ def parse_symbol(symbol):
 
 def parse_progression(progression):
     '''
-    Convert from a progression string to a list as mingus would expect
+    Code (e.g. mingus) will expect progressions as lists of shorthand chord strings.
+    Sometimes a progression might be entered as a single string of comma-delimited shorthand chord symbols.
+    This parsing function should be considered a general-purpose input sanitiser for shorthand progression strings.
         '''    
     if type(progression) == str:    
         return parse_symbol(progression).split(',') 

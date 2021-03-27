@@ -5,7 +5,7 @@ Created on Mon Dec 30 19:38:09 2019
 @author: Sam
 """
 import sidewinder as sw
-from sidewinder.lick_library import JazzLick #, get_chords_from_track
+#from sidewinder.lick_library import JazzLick #, get_chords_from_track
 
 from mingus import *
 
@@ -37,6 +37,7 @@ giant_steps = 'Abmaj7, B7, Emaj7, G7, Cmaj7, F#-7, B7, Emaj7, G7, Cmaj7, Eb7, Ab
 bt2 = [2,2]
 giant_steps_durs = 2*bt2 + [1] + 3*bt2 + [1] + 4*(bt2 + [1]) + bt2
 
+giant_steps = 
 t = sw.chords_to_midi(giant_steps, giant_steps_durs, voicing='shell', name='midi_out\\giant_stepssh') # no need to specify a key
 tb = sw.chords_to_bassline_midi(giant_steps, giant_steps_durs, name='midi_out\\giantsteps_bass', walking=True, key='Eb') # includes voicing kwargs
 

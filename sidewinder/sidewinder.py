@@ -18,7 +18,7 @@ from datetime import datetime
 #import numpy as np
 #import random
 
-import utilities
+import sidewinder.utilities as utilities
 
 synonyms = {'C#':'Db',
             'D#':'Eb',
@@ -30,6 +30,7 @@ synonyms = {'C#':'Db',
             'B':'Cb',
             'B#':'C'}
 synonyms_r = {v:k for k,v in synonyms.items()}
+
 
 #%% Chords
     
