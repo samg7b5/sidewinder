@@ -81,7 +81,7 @@ class RepresentationConversions(unittest.TestCase):
 
         shorthand_string = 'FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, Am7, D7, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, Eb9, FM7, Cm7, F7b9, BbM7, BbM7, Cbm7, E7, G7, Am7, D7b9, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, FM6'
         shorthand_list = shorthand_string.replace(' ','').split(',')
-        test_key = misty_key
+        test_key = self.misty_key
 
         mistyChart = sidewinder.Chart(progression=shorthand_list, key=test_key)
         numerals = mistyChart.get_numeral_representation(key=test_key)
@@ -109,7 +109,21 @@ class AddingDurationsToProgressions(unittest.TestCase):
 
     def test_create_representation_of_chart_with_durations(self):
 
-        assert True
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        mistyChart.set_durations(durations=self.misty_durs)
+        assert self.misty_durs == mistyChart.durations
+
+    def test_set_mismatched_length_durations_LONG(self):
+
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        mistyChart.set_durations(durations=self.misty_durs*2)
+        assert self.misty_durs == mistyChart.durations[:len(self.misty_durs)]
+
+    def test_set_mismatched_length_durations_SHORT(self):
+
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        mistyChart.set_durations(durations=self.misty_durs[:2])
+        assert self.misty_durs[:2] == mistyChart.durations[:2]
 
     def test_generate_midi_from_shorthands_and_durations_in_4_4(self):
 

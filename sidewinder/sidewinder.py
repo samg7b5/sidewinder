@@ -34,15 +34,18 @@ synonyms_r = {v:k for k,v in synonyms.items()}
 
 
 class Chart():
-    def __init__(self, progression='Dm7, G7, CM7', key='C'):
+    def __init__(self, progression=None, key=None):
         '''
-        progression can be a string or list, in either numeral (I7 etc) or shorthand (CM7 etc) form, and will get parsed into various formats and stored as object internals
+        progression: string or list of strings, in either numeral (I7 etc) or shorthand (CM7 etc) form, and will get parsed into various formats and stored as object internals
+        key: string (e.g. 'C')
         '''
         self.progressionNumeralsList = None
         self.progressionRawShorthandString = None
         self.progressionShorthandList = None
         self.progressionShorthandTuplesList = None
         self.key = key
+
+        self.durations = None # will be set by self.set_durations()
 
         # initial parsing of progression which may arrive in various formats; populate internal representations as best as possible
         if progression is not None:
@@ -60,6 +63,15 @@ class Chart():
             key = self.key # https://stackoverflow.com/questions/1802971/nameerror-name-self-is-not-defined
         return shorthand_list_to_numerals_list(self.progressionShorthandList, key=key)
 
+    def set_durations(self, durations=None):
+        if durations is None:
+            self.durations = len(self.progressionShorthandList)*[1]
+        else:
+            if len(durations) != len(self.progressionShorthandList):
+                print(f'Warning: length mismatch with supplied duration, got {len(durations)} expected {len(self.progressionShorthandList)}')
+            self.durations = durations
+
+
 
 #%% Chords
     
@@ -74,13 +86,13 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
         - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
     '''
 
-    # TO-DO: factor out PROGRESSION HANDLING logic
-    progression = utilities.parse_progression(progression)
+    ## TO-DO: factor out PROGRESSION HANDLING logic
+    #progression = utilities.parse_progression(progression)
     
-    if durations is not None and not len(durations) == len(progression):
-        print('Warning - length mismatch')
-    if durations is None:
-        durations = len(progression)*[1]
+    # if durations is not None and not len(durations) == len(progression):
+    #     print('Warning - length mismatch')
+    #if durations is None:
+    #    durations = len(progression)*[1]
         
 
 
