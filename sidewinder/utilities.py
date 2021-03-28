@@ -18,6 +18,8 @@ import mingus.core.chords as chords
 import numpy as np
 import random
 
+from typing import List
+
 #%% misc 
 synonyms = {'C#':'Db',
             'D#':'Eb',
@@ -191,13 +193,8 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
         - it also doesn't handle other chord types very well
     
     '''
-    # chords_ = progression_to_chords(progression, prog_type) # using a different approach below
-    
-    if prog_type == 'numerals': # e.g. IIm7
-        progression = [progressions.to_chords(chord)[0] for chord in progression]
-        progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
-        
-    chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
+
+
 #    print(chords_)
     
     # simple version: assume M7 = major, m7 = dorian, 7 = mixolydian
@@ -291,14 +288,14 @@ def parse_symbol(symbol):
     '''
     return symbol.replace(' ','').replace('-','m').replace('maj','M').replace('i','I').replace('v','V').replace('I7','Idom7').replace('V7','Vdom7').replace('dom7b9','7b9').replace('mIn','min')   
 
-def parse_progression(progression):
+def parse_progression(progression) -> List[str]:
     '''
     Code (e.g. mingus) will expect progressions as lists of shorthand chord strings.
     Sometimes a progression might be entered as a single string of comma-delimited shorthand chord symbols.
     This parsing function should be considered a general-purpose input sanitiser for shorthand progression strings.
-        '''    
+    '''    
     if type(progression) == str:    
-        return parse_symbol(progression).split(',') 
+        return parse_symbol(progression).rstrip(' ').rstrip(',').split(',') 
     else:
         return [parse_symbol(chord) for chord in progression]
     

@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='sidewinder',
-    version='0.1.0',
+    version='0.1.1',
     description='Sidewinder jazz programming library',
     long_description=readme,
     author='Sam Gould',

@@ -32,6 +32,43 @@ synonyms = {'C#':'Db',
 synonyms_r = {v:k for k,v in synonyms.items()}
 
 
+class Chart():
+    def __init__(self, progression='Dm7, G7, CM7', key='C'):
+        '''
+        progression can be a string or list, in either numeral (I7 etc) or shorthand (CM7 etc) form, and will get parsed into various formats and stored as object internals
+        '''
+        
+        self.progressionNumeralsList = None
+        self.progressionRawShorthandString = None
+        self.progressionShorthandList = None
+        self.progressionShorthandTuplesList = None
+        self.key = key
+
+        if progression is not None:
+            if progression[0][0] in ['I', 'V', 'i', 'v']:
+                self.progressionNumeralsList = utilities.parse_progression(progression)
+                self.progressionShorthandList = [chords.determine(progressions.to_chords(chord, key=self.key)[0], shorthand=True)[0] for chord in self.progressionNumeralsList] # ['Dm7', 'Gdom7', 'CM7']
+            else:
+                if type(progression) == str:
+                    self.progressionRawShorthandString = progression
+                self.progressionShorthandList = utilities.parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
+            
+            self.progressionShorthandTuplesList = [chords.chord_note_and_family(chord) for chord in self.progressionShorthandList] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
+
+    def numerals_list_to_shorthand_list(self, numerals, key='C'): 
+        '''
+        Convert numerals (e.g. ['IIm7', 'V7', 'IM7']) to shorthand (e.g. ['Dm7', 'Gdom7', 'CM7']) with optional choice of key (default is C)
+        '''
+        chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
+        return [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. ['CM7',...]
+        
+    
+    #def shorthand
+
+        
+    
+
+
 #%% Chords
     
 def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='smooth', name='..\\midi_out\\untitled', key='C', save=True, prog_type='shorthand', **kwargs):
@@ -53,8 +90,7 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
     if durations is None:
         durations = len(progression)*[1]
         
-    if progression[0][0] in ['I', 'V', 'i', 'v']:
-        prog_type = 'numerals'
+
 
 
         
@@ -93,12 +129,14 @@ def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walk
         print('Warning - length mismatch')
     if durations is None:
         durations = len(progression)*[1]
-        
+
+    # numeral_to_sh (-> PROGRESSION logic)    
     if progression[0][0] in ['I', 'V', 'i', 'v']:
         progression = [progressions.to_chords(chord)[0] for chord in progression]
         progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
         
-        
+    
+    # chord_tuple_list
     # REFACTORING: this looks different to progressions, is this separate chord logic? looks like a raw mingus import actually, so be clever in where this goes (maybe as part of the overall workflow logic)
     chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
     
