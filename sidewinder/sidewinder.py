@@ -18,7 +18,8 @@ from datetime import datetime
 #import numpy as np
 #import random
 
-import sidewinder.utilities as utilities
+import sidewinder.utilities as utilities # aim to remove this line
+from sidewinder.utilities import parse_progression, numerals_list_to_shorthand_list, shorthand_list_to_numerals_list
 
 synonyms = {'C#':'Db',
             'D#':'Eb',
@@ -42,31 +43,18 @@ class Chart():
         self.progressionRawShorthandString = None
         self.progressionShorthandList = None
         self.progressionShorthandTuplesList = None
+        
         self.key = key
 
         if progression is not None:
             if progression[0][0] in ['I', 'V', 'i', 'v']:
                 self.progressionNumeralsList = utilities.parse_progression(progression)
-                self.progressionShorthandList = [chords.determine(progressions.to_chords(chord, key=self.key)[0], shorthand=True)[0] for chord in self.progressionNumeralsList] # ['Dm7', 'Gdom7', 'CM7']
-            else:
+                self.progressionShorthandList = numerals_list_to_shorthand_list(self.progressionNumeralsList, key=self.key) # ['Dm7', 'Gdom7', 'CM7']
+            else: # if shorthand str or shorthand list
                 if type(progression) == str:
                     self.progressionRawShorthandString = progression
                 self.progressionShorthandList = utilities.parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
-            
             self.progressionShorthandTuplesList = [chords.chord_note_and_family(chord) for chord in self.progressionShorthandList] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
-
-    def numerals_list_to_shorthand_list(self, numerals, key='C'): 
-        '''
-        Convert numerals (e.g. ['IIm7', 'V7', 'IM7']) to shorthand (e.g. ['Dm7', 'Gdom7', 'CM7']) with optional choice of key (default is C)
-        '''
-        chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
-        return [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. ['CM7',...]
-        
-    
-    #def shorthand
-
-        
-    
 
 
 #%% Chords
@@ -198,50 +186,7 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
         
     
     
-    
-
-def shorthand_to_numerals(progression='Cmaj7, G-7, C7, Fmaj7, Bb7', key='C'):
-    
-    # PROGRESSION logic
-    progression = utilities.parse_progression(progression)
-    
-    # REFACTORING: -> utilities?
-    def get_note(symbol):
-        if symbol[1] == '#' or symbol[1] == 'b':
-            return symbol[0:2]
-        else:
-            return symbol[0]
-        
-    # is this PROGRESSION logic too or should it be kept here as function logic? I think the rest of this function needs a round of annotate -> understand -> decide on refactor or retain as function (as Progression method most likely)
-    proc_progression = [[get_note(chord), chord[len(get_note(chord)):]] for chord in progression]
-    
-    scale = scales.Chromatic(key)
-    scale_list = []
-    for i in range(0, len(scale)-1):
-        x = scale.degree(i+1)
-        if '##' in x:
-            x = chr(ord(x[0])+1)
-        
-        scale_list.append(x)
-    chromatic_numerals = ['I', 'bII', 'II', 'bIII', 'III', 'IV', 'bV', 'V', 'bVI', 'VI', 'bVII', 'VII']
-    
-    numerals_progression = []
-    for i, chord in enumerate(proc_progression):
-        
-        stem = chord[1]
-        
-        try:
-            numeral = chromatic_numerals[scale_list.index(chord[0])]
-        except ValueError:
-            try:
-                numeral = chromatic_numerals[scale_list.index(synonyms[chord[0]])]
-            except KeyError:
-                numeral = chromatic_numerals[scale_list.index(synonyms_r[chord[0]])]
-            
-        numerals_progression.append(numeral+stem)
-    
-    return numerals_progression
-
+ 
 
     
     

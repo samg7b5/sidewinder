@@ -90,6 +90,53 @@ def progression_to_chords(progression, prog_type='shorthand'):
         chords_ = [progressions.to_chords(chord)[0] for chord in progression]
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
+def numerals_list_to_shorthand_list(numerals, key='C'): 
+        '''
+        Convert numerals (e.g. ['IIm7', 'V7', 'IM7']) to shorthand (e.g. ['Dm7', 'Gdom7', 'CM7']) with optional choice of key (default is C)
+        '''
+        chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
+        return [chords.determine(chord, shorthand=True)[0] for chord in chord_notes] # shorthand e.g. ['CM7',...]
+
+def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 'Bb7'], key='C'):
+    '''
+    progression is a shorthand list or a raw shorthand string (either work since we use parse_progression() to be safe)
+    returns chords as a list of numerals
+    '''
+    progression = parse_progression(progression)
+    
+    def get_note(symbol):
+        if symbol[1] == '#' or symbol[1] == 'b':
+            return symbol[0:2]
+        else:
+            return symbol[0]
+        
+    proc_progression = [[get_note(chord), chord[len(get_note(chord)):]] for chord in progression] # splits a shorthand (e.g. 'C#M7' -> ['C#','M7'])
+    
+    # the numeral is the note's index in the chromatic scale of this key
+    scale = scales.Chromatic(key)
+    scale_list = []
+    for i in range(0, len(scale)-1):
+        x = scale.degree(i+1)
+        if '##' in x:
+            x = chr(ord(x[0])+1)
+        scale_list.append(x)
+
+    chromatic_numerals = ['I', 'bII', 'II', 'bIII', 'III', 'IV', 'bV', 'V', 'bVI', 'VI', 'bVII', 'VII']    
+    numerals_progression = []
+    for i, chord in enumerate(proc_progression):
+        stem = chord[1]
+        try:
+            numeral = chromatic_numerals[scale_list.index(chord[0])]
+        except ValueError:
+            try:
+                numeral = chromatic_numerals[scale_list.index(synonyms[chord[0]])]
+            except KeyError:
+                numeral = chromatic_numerals[scale_list.index(synonyms_r[chord[0]])]
+        numerals_progression.append(numeral+stem)
+    
+    return numerals_progression
+
+
 #%% Voices - might move to its own script in future
 def generate_chord_inversions(chord): # works on semitones
     inversions = [[chord[p - q] for p in range(len(chord))] for q in range(len(chord))]
