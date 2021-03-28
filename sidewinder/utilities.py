@@ -11,7 +11,7 @@ import mingus.core.progressions as progressions
 #from mingus.midi import midi_file_out
 from mingus.containers import Track, Bar
 from mingus.core import intervals
-#import mingus.core.scales as scales
+import mingus.core.scales as scales
 import mingus.core.chords as chords
 
 #from datetime import datetime

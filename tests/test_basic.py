@@ -81,9 +81,17 @@ class RepresentationConversions(unittest.TestCase):
 
     def test_shorthand_list_and_given_key_to_numerals_list(self):
 
-        # most likely using the sidewinder.detect_numeral_pattern() function which should be refactored similarly with utilities.progression_to_chords() / Chart.numerals_list_to_shorthand_list()
+        shorthand_string = 'FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, Am7, D7, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, Eb9, FM7, Cm7, F7b9, BbM7, BbM7, Cbm7, E7, G7, Am7, D7b9, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, FM6'
+        shorthand_list = shorthand_string.replace(' ','').split(',')
+        test_key = 'F'
 
-        assert False
+        mistyChart = sidewinder.Chart(progression=shorthand_list, key=test_key)
+
+        numerals = mistyChart.get_numeral_representation(key=test_key)
+        
+        cond1 = (numerals[1] == 'Vm7')
+
+        assert (cond1)
 
 class AddingDurationsToProgressions(unittest.TestCase):
     """Tests to drive work on refactor-core 28/03/21 (creating a Chart object to replicate monolithic examples of chords_to_midi(), chords_to_bassline_midi())

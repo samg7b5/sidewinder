@@ -38,14 +38,13 @@ class Chart():
         '''
         progression can be a string or list, in either numeral (I7 etc) or shorthand (CM7 etc) form, and will get parsed into various formats and stored as object internals
         '''
-        
         self.progressionNumeralsList = None
         self.progressionRawShorthandString = None
         self.progressionShorthandList = None
         self.progressionShorthandTuplesList = None
-        
         self.key = key
 
+        # initial parsing of progression which may arrive in various formats; populate internal representations as best as possible
         if progression is not None:
             if progression[0][0] in ['I', 'V', 'i', 'v']:
                 self.progressionNumeralsList = utilities.parse_progression(progression)
@@ -55,6 +54,11 @@ class Chart():
                     self.progressionRawShorthandString = progression
                 self.progressionShorthandList = utilities.parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
             self.progressionShorthandTuplesList = [chords.chord_note_and_family(chord) for chord in self.progressionShorthandList] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
+
+    def get_numeral_representation(self, key=None):
+        if key is None: 
+            key = self.key # https://stackoverflow.com/questions/1802971/nameerror-name-self-is-not-defined
+        return shorthand_list_to_numerals_list(self.progressionShorthandList, key=key)
 
 
 #%% Chords
