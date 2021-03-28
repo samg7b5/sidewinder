@@ -94,10 +94,6 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
     #if durations is None:
     #    durations = len(progression)*[1]
         
-
-
-
-        
         
     # TO-DO: factor out VOICINGS logic  
     if voicing == 'smooth':
@@ -109,10 +105,7 @@ def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='sm
 
     t = utilities.chords_to_track(voiced_chords, durations) # REFACTORING: where does this line go? potentially part as 'I want output X' logic within overall workflow (which would also include midi as an option)
 
-    
-    
-    
-    
+   
     # MIDI logic
     if name == 'midi_out\\untitled':
         name += datetime.now().strftime('%Y%m%d%H%M%S')    
@@ -126,18 +119,18 @@ def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walk
         
     # REFACTORING: take inspiration from chords_to_midi()
     
-    # PROGRESSION logic
-    progression = utilities.parse_progression(progression)
+    # # PROGRESSION logic
+    # progression = utilities.parse_progression(progression)
     
-    if durations is not None and not len(durations) == len(progression):
-        print('Warning - length mismatch')
-    if durations is None:
-        durations = len(progression)*[1]
+    # if durations is not None and not len(durations) == len(progression):
+    #     print('Warning - length mismatch')
+    # if durations is None:
+    #     durations = len(progression)*[1]
 
-    # numeral_to_sh (-> PROGRESSION logic)    
-    if progression[0][0] in ['I', 'V', 'i', 'v']:
-        progression = [progressions.to_chords(chord)[0] for chord in progression]
-        progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
+    # # numeral_to_sh (-> PROGRESSION logic)    
+    # if progression[0][0] in ['I', 'V', 'i', 'v']:
+    #     progression = [progressions.to_chords(chord)[0] for chord in progression]
+    #     progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
         
     
     # chord_tuple_list

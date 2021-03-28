@@ -125,9 +125,9 @@ class AddingDurationsToProgressions(unittest.TestCase):
         mistyChart.set_durations(durations=self.misty_durs[:2])
         assert self.misty_durs[:2] == mistyChart.durations[:2]
 
-class CompositionAndMidi(unittest.TestCase):
+class BasicVoicingHandling(unittest.TestCase):
     """Tests to drive work on refactor-core 28/03/21 (creating a Chart object to replicate monolithic examples of chords_to_midi(), chords_to_bassline_midi())
-    Specifically overlaying durations to the Chart representations to create compositions e.g. voicings -> midi files"""
+    Specifically handling of basic 'vertical' (e.g. individual rootless) and 'horizontal' (== smooth voice leading, at this stage) voicing """
 
     misty_numerals = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
     IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, bVII9, IM7, \
@@ -142,6 +142,26 @@ class CompositionAndMidi(unittest.TestCase):
             1, 1, 1, 1, 
             1, 2, 2, 2, 2, 2, 2, 
             1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
+
+    def test_individual_chord_voicing_basic(self):
+        
+        from mingus.containers import Note
+        from sidewinder.voicings.voicings import apply_individual_chord_voicing
+        
+        cond1 = (apply_individual_chord_voicing('Gm7')[3] == 'F-5') # default octave is 4 so it makes sense that we've extended to 5
+        cond2 = (apply_individual_chord_voicing('Gm7', semitones=True)[3] == int(Note('F',5)))
+        
+        assert (cond1 & cond2)
+    
+    def test_individual_chord_voicing_option(self):
+
+        from sidewinder.voicings.voicings import apply_individual_chord_voicing
+
+        assert True
+    
+    def test_smooth_voice_leading(self):
+
+        assert True
 
     def test_generate_midi_from_shorthands_and_durations_in_4_4(self):
 
