@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # Note: using `pip install -e .` as per https://docs.pytest.org/en/latest/explanation/goodpractices.html#goodpractices
+# TO-DO: unittest -> pytest (?)
 
 import sidewinder
-
 import unittest
-
 
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
@@ -16,7 +15,6 @@ class BasicTestSuite(unittest.TestCase):
         synonyms = None
         from sidewinder import synonyms
         assert synonyms is not None
-
 
 class RepresentationConversions(unittest.TestCase):
     """Tests to drive work on refactor-core 28/03/21 (creating a Chart object to replicate monolithic examples of chords_to_midi(), chords_to_bassline_midi())
@@ -83,14 +81,12 @@ class RepresentationConversions(unittest.TestCase):
 
         shorthand_string = 'FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, Am7, D7, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, Eb9, FM7, Cm7, F7b9, BbM7, BbM7, Cbm7, E7, G7, Am7, D7b9, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, FM6'
         shorthand_list = shorthand_string.replace(' ','').split(',')
-        test_key = 'F'
+        test_key = misty_key
 
         mistyChart = sidewinder.Chart(progression=shorthand_list, key=test_key)
-
         numerals = mistyChart.get_numeral_representation(key=test_key)
         
         cond1 = (numerals[1] == 'Vm7')
-
         assert (cond1)
 
 class AddingDurationsToProgressions(unittest.TestCase):
