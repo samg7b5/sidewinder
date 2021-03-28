@@ -125,6 +125,24 @@ class AddingDurationsToProgressions(unittest.TestCase):
         mistyChart.set_durations(durations=self.misty_durs[:2])
         assert self.misty_durs[:2] == mistyChart.durations[:2]
 
+class CompositionAndMidi(unittest.TestCase):
+    """Tests to drive work on refactor-core 28/03/21 (creating a Chart object to replicate monolithic examples of chords_to_midi(), chords_to_bassline_midi())
+    Specifically overlaying durations to the Chart representations to create compositions e.g. voicings -> midi files"""
+
+    misty_numerals = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, bVII9, IM7, \
+    v-7, I7b9, IVM7, IVM7,\
+    bv-7, VII7, II7, iii-7, VI7b9, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, I6'
+
+    misty_key = 'F'
+
+    misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 
+            1, 1, 1, 1, 
+            1, 2, 2, 2, 2, 2, 2, 
+            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
+
     def test_generate_midi_from_shorthands_and_durations_in_4_4(self):
 
         assert True
