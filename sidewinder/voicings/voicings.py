@@ -4,14 +4,14 @@ from mingus.containers import Note
 import mingus.core.chords as chords
 
 from sidewinder.utilities import move_b_above_a_with_modularity
-from sidewinder.voicings.voicing_utilities import rebuild_chord_upwards
+from sidewinder.voicings.voicing_utilities import rebuild_chord_upwards, add_bass_note_to_slash_chord
 
 
 def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False, **kwargs):
     '''
-    Main handler for individual chord voicings
-    Expects a single chord shorthand e.g. 'C7'
-    Returns mingus Notes by default with option to return as semitone integers
+    Main handler for individual chord voicings.
+    Expects a single chord shorthand e.g. 'C7'.
+    Returns mingus Notes by default with option to return as semitone integers.
     '''
     voiced_semitones = None
     if voicing_type is None:
@@ -19,7 +19,9 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
     if voicing_type == 'shell':
         voiced_semitones = None
     elif voicing_type == 'rootless':
-        voiced_semitones = None
+        voiced_semitones = rootless_voice(chord, **kwargs)
+
+    # TO-DO: add_bass_note_to_slash_chord()
 
     if not semitones:
         return [Note().from_int(semi) for semi in voiced_semitones] # list of mingus Notes
@@ -86,23 +88,74 @@ def shell_voice(progression, durations, prog_type='shorthand', roots=False, exte
     voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
     return voiced_chords
 
-def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
+def rootless_voice(chord:str, key=None, type=None):
     '''
+
+    - 3rds and 7ths define chord quality
+    - drop the roots; we might drop 5ths too as they're not particularly interesting
+
+
     http://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chord-voicings/rootless-voicings/
+
+    "Because you are playing 4 notes all within the span of a single octave, these voicings can be a little bit muddy if played too low. 
+    As such, try adhere to the ‘rule of thumb’: the top note of a rootless chord voicing (played with your thumb) should be 
+    between middle C and the C an octave above middle C on the piano. That is, try stick to the middle register with this chord voicing.
     
-    Note:
-        - this is a badly written function, in particular the handling of modes to get the correct scale degrees is inelegant and
-        not very reproducible/extensible
-        - it also doesn't handle other chord types very well
+    
+    Type A Rootless Voicings
+    Chord	7th Chord in C	Rootless Chord	Notes	    Degrees	    Note on Bottom
+    ii	    Dm7	            Dm9	            F A C E	    3 5 7 9	    3rd
+    V	    G7	            13	            F A B E	    7 9 3 13	7th
+    I	    CMaj7	        CMaj9	        E G B D	    3 5 7 9	    3rd
+
+    Type B Rootless Voicings
+    Chord	7th Chord in C	Rootless Chord	Notes	    Degrees	    Note on Bottom
+    ii	    Dm7	            Dm9	            C E F A	    7 9 3 5	    7th
+    V	    G7	            G13	            B E F A	    3 13 7 9    3rd
+    I	    CMaj7	        C69	            A D E G	    6 9 3 5	    7th
+
+    params:
+    - key (e.g. 'C') is used to determine flavours of extensions. 
+        For example, a Dm7 in C (ii7) would extend to a Dm13 (with a G natural), while an Am7 in C (vi7) would extend to an Am11b13 (G natural)
+        If key is None then we can still make assumptions about alterations because (for example) if we get a 13 we know it is from a dom7 and is a natural 13
+    - use type == 'A' or 'B', or if None then use randomness? Or pick one.
+    
     
     '''
 
 
-#    print(chords_)
+    chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
+
+    # specify recipes for the different chord types in terms of diatonic scale degrees (e.g. 3 in m7 is a minor 3rd)
+
+    recipes_A = {'M7': [3,5,7,9],
+               '7': [7,9,3,13],
+               'm7': [3,5,7,9]}
+
+    recipes_B = {'M7': [6,9,3,5],
+               '7': [3,13,7,9],
+               'm7': [7,9,3,5]}
     
-    # simple version: assume M7 = major, m7 = dorian, 7 = mixolydian
-    # which equates to parallel major key-centres of 0, -2 (e.g. Dm7 in C), -7 (e.g. G7 in C) semitones resp.
-    # but in future (TO-DO) might want to allow alterations by putting in different keys e.g. a dom7 chord that's not mixolydian
+    if type == 'B':
+        recipes = recipes_B
+    else:
+        recipes = recipes_A
+
+    # implement way to apply recipes
+
+
+    
+    # check chord_type, see if we have a recipe specified
+
+    # if so, apply chord recipe
+    
+    # if not, default voice (return this as a None flag and handle it in the parent function)
+
+
+
+
+
+
     
     key_offset = {'M7':0,
                   '7': int(Note('G')) - int(Note('C')),
@@ -128,13 +181,7 @@ def rootless_voice(progression, durations, prog_type='shorthand', type='A'):
         chord_type = chord[1]
 
         
-        if '/' in chord_type:
-            print('TO-DO: handle slash chords at a more macro level, e.g. have a function which adds bass note to any slash chord voicing')
-            slash_chord = True
-            bass_note = ''.join(chord_type.split('/')[1:])
-            chord_type = chord_type.split('/')[0]
-        if chord_type == '':
-            chord_type = 'M'
+
         
         try:
             rel_major = Note().from_int(int(Note(chord_root)) - key_offset[chord_type]).name 

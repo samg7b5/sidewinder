@@ -48,4 +48,12 @@ def generate_close_chords(chord):
         inversions[i] = rebuild_chord_inwards(chord)
     return inversions
 
-
+def add_bass_note_to_slash_chord(chord):
+    # e.g. C7/E should have E in the bass (when various voicings are applied)
+    chord_root = chord[0]
+    chord_type = chord[1]
+    if '/' in chord_type:
+        print('TO-DO: handle slash chords at a more macro level, e.g. have a function which adds bass note to any slash chord voicing')
+        slash_chord = True
+        bass_note = ''.join(chord_type.split('/')[1:])
+    return None

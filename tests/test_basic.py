@@ -150,14 +150,24 @@ class BasicVoicingHandling(unittest.TestCase):
         
         cond1 = (apply_individual_chord_voicing('Gm7')[3] == 'F-5') # default octave is 4 so it makes sense that we've extended to 5
         cond2 = (apply_individual_chord_voicing('Gm7', semitones=True)[3] == int(Note('F',5)))
+        #        apply_individual_chord_voicing('shorthand':str, semitones:bool) returns a list of mingus Note()'s where semitone pitches are int(Note())'s
         
         assert (cond1 & cond2)
     
     def test_individual_chord_voicing_option(self):
 
+        from mingus.containers import Note
         from sidewinder.voicings.voicings import apply_individual_chord_voicing
+        
+        # the idea for this test is to figure out a good way for adding new voices, when re-writing rootless and shell to work with apply_individual_chord_voicing()
+        # ideally there is a way to schematically specify voicings e.g. rootless = 3rd+5th+7th ascending (illustrative example)
+        # 
+        #  
+        cond1 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless')[3] == 'F-5') # TO-DO: update target from 'F-5' to the correct target
+        cond2 = (apply_individual_chord_voicing('Gm7', voicing_type='shell', semitones=True)[3] == int(Note('F',5))) # TO-DO: update target from 'F-5' to the correct target
+        
+        assert (cond1 & cond2)
 
-        assert True
     
     def test_smooth_voice_leading(self):
 
@@ -176,6 +186,14 @@ class BasicVoicingHandling(unittest.TestCase):
         assert True
 
     def test_generate_walking_bassline_midi(self):
+
+        assert True
+
+    def test_generate_1351_exercise_for_given_scale(self):
+
+        assert True
+
+    def test_detect_all_251s(self):
 
         assert True
 

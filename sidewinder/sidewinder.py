@@ -193,11 +193,3 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
         
     return hits
         
-    
-    
- 
-
-    
-    
-    
-    
