@@ -141,15 +141,9 @@ def rootless_voice(chord:str, key=None, type=None):
     else:
         recipes = recipes_A
 
-    # implement way to apply recipes
-
-
+    # apply recipes
     
-    # check chord_type, see if we have a recipe specified
-
-    # if so, apply chord recipe
-    
-    # if not, default voice (return this as a None flag and handle it in the parent function)
+    # if no recipe specified, default voice (return this as a None flag and handle it in the parent function)
 
 
 
