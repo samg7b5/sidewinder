@@ -20,6 +20,5 @@ Upcoming features:
 - ...
 
 To-do (excluding code functionality):
-- Create tests (currently placeholder)
 - Create docs (currently placeholder)
 - Update requirements.txt (might be bloated)
