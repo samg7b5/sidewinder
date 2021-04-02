@@ -233,6 +233,10 @@ class BasicVoicingHandling(unittest.TestCase):
 
         assert True
 
+    def test_shell_voicing(self):
+
+        assert True
+
 
 if __name__ == '__main__':
     unittest.main()
