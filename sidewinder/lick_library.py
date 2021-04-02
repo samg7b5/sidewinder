@@ -18,9 +18,11 @@ from itertools import combinations
 from datetime import datetime
 import numpy as np
 
+import ast
+
 #%%
 from tinydb import TinyDB, Query # https://tinydb.readthedocs.io/en/latest/getting-started.html
-db = TinyDB(r'C:\Users\Sam\Documents\Sidewinder\local files\jazz-licks-db.json') # set-up / connection
+db = TinyDB(r'C:\Users\Sam\Documents\Sidewinder\local files\jazz-licks-db-260720.json') # set-up / connection
 #db.insert({'name': 'test', 'passage': None, 'tags':'251'})
 #db_size = len(db.all())
 
@@ -33,7 +35,10 @@ def is_jsonable(x):
         return False
 
 #%% db functions
-def find_all_matches(db, entry):
+def find_exact_matches(db, entry):
+    # searches db for items L where L.key == value for (key,value) in entry
+    # e.g. entry = {'tags':'251'} will return items L where L.tags == ['251'] # note has to match entirely
+    
     q = [(Query()[t[0]]==t[1]) for t in [(key,value) for key, value in entry.items()]]
     
     qq = q[0]
@@ -43,12 +48,30 @@ def find_all_matches(db, entry):
     
     return [x.doc_id for x in db.search(qq)]
 
-def load_entry(db, entry):
+def find_partial_matches(db, entry):
+    # searches db for items L where value in L.key for (key,value) in entry
+    # e.g. entry = {'tags':'251'} will return items L where '251' is an element of L.tags 
+    
+    out = []
+    for key, value in entry.items():
+        search_fn = lambda t: value in t
+        out = out + [x.doc_id for x in db.search(Query()[key].test(search_fn))]
+    
+    return out
+
+def load_entry(db, doc_id=0):
     '''
-    TO-DO: Returns the entry as an object 
+    Re-instantiates entry as a JazzLick object given TinyDB doc_id
     '''
-    #process and potentially do some mingus instantiation, then JazzLick() -  should use jsonpickle for convenience
-    return JazzLick(entry) # placeholder for Class instantiation - defn depends on use reqs e.g. auto-convert between scale degree formats
+    x = Track_from_list(ast.literal_eval(db.get(doc_id=doc_id)['passage'])[1])
+
+    c = Composition()
+    x.bars = Bars_from_list(x.bars)
+    c.add_track(x)
+
+    j = JazzLick(c, passage_track=0, chords=db.get(doc_id=doc_id)['chords'])
+            
+    return j
 
 # TO-DO: do a search by stylistic tag e.g. modern, bebop etc.
 
@@ -210,10 +233,11 @@ class JazzLick:
         if source_type == Composition:
             
             # chords
-            ch = get_chords_from_track(source.tracks[chord_track]) 
-            sh = [c[3] for c in ch]
-            print('Detected chords: ', sh[0:3], '...')
-            self.chords = ch
+            if chords is None:
+                ch = get_chords_from_track(source.tracks[chord_track]) 
+                sh = [c[3] for c in ch]
+                print('Detected chords: ', sh[0:3], '...')
+                self.chords = ch
             if chords is not None:
                 print('Supplied chords overwrite auto-generated')
                 self.chords = chords
@@ -265,7 +289,7 @@ class JazzLick:
 #%% random utility functions for manipulating bars etc, not the nicest code and may be more suitable in Sidewinder core
 
 def Bars_from_list(listb=[[0.0, 8.0, None],[0.125, 8.0, ['C-5']]]):
-    listb = [notev[0] if len(notev) == 1 else notev for notev in listb]    
+    #listb = [notev[0] if len(notev) == 1 else notev for notev in listb] # commented out as was repeating whole bars (notev = [whole bar note container nc])
     listb = [nc if type(notev[0])!=float else notev for notev in listb for nc in notev]
     b = Bar() # we're instantiating Bars so I'm not sure why the outputs are sometimes type [list]..., cf fix_track_bar()
     bars = [b]
@@ -358,10 +382,24 @@ def split_bar(bar, split_point):
     
     return bar_l, bar_r
     
-#%% lick ingestion workflow
+#%% lick ingestion functions
     
 def split_track_chords(chords, split_points):
-    return [chords[int(i-1):int(j-1)] for i, j in zip([1]+split_points, split_points+[99999])]
+    
+    split_chords = [chords[int(i-1):int(j-1)] for i, j in zip([1]+split_points, split_points+[99999])] # note that this will round bars if split is fraction
+    
+    # instead of naively returning the split chords, we should relabel durations so that each split begins from bar pos 0
+    # and appropriate counting of partial bars is retained (note that it is probably in the initial lick splitting where we never really distinguish between licks which begin with notes vs. rests (i.e. partial bars))
+    out = []
+    for split in split_chords:
+        start_idx = split[0][0]
+        reindexed_split = []
+        for i, chord in enumerate(split):
+            reindexed_chord = [chord[0]-start_idx] + chord[1:] # note that [i,j,chord name, chord symbol] comes from get_chords_from_track (j is in-bar event number but may need to refer to position in case we have different length chords)
+            reindexed_split.append(reindexed_chord)
+        out.append(reindexed_split)
+    
+    return out
 
 def licks_from_track(track, chords, split_points, shared_tags=[''], individual_tags=None):
     if individual_tags == None:
@@ -383,6 +421,7 @@ def licks_from_track(track, chords, split_points, shared_tags=[''], individual_t
 
 #%% examples - here for dev purposes
     
+# lick ingestion workflow
 if __name__ == 'main':
     print('If you are seeing this then LickLibrary is running in main!')
     # Load midi generated by Lilypond (Frescobaldi)
@@ -406,6 +445,7 @@ if __name__ == 'main':
     #y_Obj.tag(['4 bars','quaver lines'])
     
     # ---------------------->> NOW ALSO CREATE SOME CODE TO IMPORT THE JIMINPARK 251 INDIVIDUAL MIDIS TO DB
+    # (aren't these literally just the licks variable?) in which case we can just work on storing separately to db with a loop?
     
 #   NEXT -==========================================
     # 1) given slice markers, separate different licks

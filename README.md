@@ -5,6 +5,8 @@ Sidewinder is a programming library for composition and jazz theory.
 
 bspaans/python-mingus is used as a foundation for musical logic and MIDI support.
 
+"Good enough for jazz"
+
 Current features:
 - Analyse jazz chords in terms of shorthand and roman numeral notation
 - Vertical voicings of chords: shell, rootless, etc.
@@ -21,5 +23,3 @@ To-do (excluding code functionality):
 - Create tests (currently placeholder)
 - Create docs (currently placeholder)
 - Update requirements.txt (might be bloated)
-
-

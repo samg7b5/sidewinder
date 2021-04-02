@@ -1,1 +1,1 @@
-from .Sidewinder import * # or you can maybe choose what to expose
+from .sidewinder import * # or you can maybe choose what to expose
