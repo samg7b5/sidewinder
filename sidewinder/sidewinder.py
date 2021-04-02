@@ -74,46 +74,6 @@ class Chart():
 
 
 #%% Chords
-    
-def chords_to_midi(progression=['Dm7', 'G7', 'CM7'], durations=None, voicing='smooth', name='..\\midi_out\\untitled', key='C', save=True, prog_type='shorthand', **kwargs):
-    '''
-    Generate and export a basic midi file for given chord progression.
-    Progression can be as shorthand (e.g. Am7) or Roman numerals (e.g. VIm7)
-    
-    Durations should be a list of integers e.g. [2,2,1] will give | chord 1 chord 2 | chord 3 |
-    
-    TO-DO: 
-        - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
-    '''
-
-    ## TO-DO: factor out PROGRESSION HANDLING logic
-    #progression = utilities.parse_progression(progression)
-    
-    # if durations is not None and not len(durations) == len(progression):
-    #     print('Warning - length mismatch')
-    #if durations is None:
-    #    durations = len(progression)*[1]
-        
-        
-    # TO-DO: factor out VOICINGS logic  
-    if voicing == 'smooth':
-        voiced_chords = utilities.smooth_voice_leading(progression, durations, prog_type)
-    elif voicing == 'shell':
-        voiced_chords = utilities.shell_voice(progression, durations, prog_type, **kwargs)
-    elif voicing == 'rootless':
-        voiced_chords = utilities.rootless_voice(progression, durations, prog_type, **kwargs)
-
-    t = utilities.chords_to_track(voiced_chords, durations) # REFACTORING: where does this line go? potentially part as 'I want output X' logic within overall workflow (which would also include midi as an option)
-
-   
-    # MIDI logic
-    if name == 'midi_out\\untitled':
-        name += datetime.now().strftime('%Y%m%d%H%M%S')    
-
-    if save:
-        midi_file_out.write_Track(f'{name}.mid', t)
-        print(f'Saved: {name}.mid')
-    return t
 
 def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walking=True, name='midi_out\\bassline', key='C', save=True):
         
@@ -141,10 +101,10 @@ def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walk
     # REFACTORING: having a specific _bassline function seems like a quick hack - now we should generalise to horizontal composition (where voicings are vertical composition)
     # for chords_to_track refactoring, see function above (tease apart 'horizontal' (eg walking) and 'output' (eg track->midi) logic/choices)
     bassline = [Note(chord[0], octave=3) for chord in chords_]
-    t = utilities.chords_to_track(bassline, durations)
+    t = utilities.notes_durations_to_track(bassline, durations)
     if walking:
         bassline, durations = utilities.create_walking_bassline(chords_, durations)
-        t = utilities.chords_to_track(bassline, durations)
+        t = utilities.notes_durations_to_track(bassline, durations)
     
     # MIDI logic
     if name == 'midi_out\\bassline':

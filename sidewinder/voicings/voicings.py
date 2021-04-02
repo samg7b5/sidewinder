@@ -21,12 +21,24 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
     elif voicing_type == 'rootless':
         voiced_semitones = rootless_voice(chord, **kwargs)
 
-    # TO-DO: add_bass_note_to_slash_chord()
+    if voiced_semitones is None:
+        voiced_semitones = default_voice(chord)
 
+    # TO-DO: add_bass_note_to_slash_chord() (e.g. C7/E -> put an E in the bass)
+    
     if not semitones:
         return [Note().from_int(semi) for semi in voiced_semitones] # list of mingus Notes
     else:
         return voiced_semitones # list of semitones
+
+def voice_chords(chords, voicing_type=None, semitones=False, **kwargs):
+    '''
+    For voicings multiple chords (each with the same voicing parameters)
+    Expects a list of chord shorthands e.g. ['Dm7', 'G7']
+    Returns mingus Notes by default with option to return as semitone integers.
+    '''
+    return [apply_individual_chord_voicing(chord, voicing_type=voicing_type, semitones=semitones, **kwargs) for chord in chords]
+
 
 #%% Individual voicings
 
@@ -137,14 +149,24 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
     else:
         recipes = recipes_A
 
+    # extrapolate recipes to other chord types
+    for ct in ['m9','m11','m13']:
+        recipes[ct] = recipes['m7']
+    for ct in ['M9','M13']:
+        recipes[ct] = recipes['M7']
+    for ct in ['9','11','13']:
+        recipes[ct] = recipes['7']
+
     # apply recipes
     voiced_chord = []
     root, chord_type = chords.chord_note_and_family(chord) # 'D', 'm7'
     try:
-        for extension in recipes[chord_type]:
-            voiced_chord.append(get_diatonic_upper_chord_extension(chord, extension, key=key, mode=mode))
-        return [int(Note(note)) for note in voiced_chord]
-
+        recipe = recipes[chord_type]
     except KeyError:
         print(f'No voicing recipe specified for chord: {chord}')    
-        return None # acts as flag to parent function
+        return None # acts as flag to parent function        
+    for extension in recipe:
+        voiced_chord.append(get_diatonic_upper_chord_extension(chord, extension, key=key, mode=mode))
+    # TO-DO: fix octaves (if needed?)
+    return [int(Note(note)) for note in voiced_chord]
+

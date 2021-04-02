@@ -6,16 +6,16 @@ Holds utility-style functions that are used across different mid-level Sidewinde
 
 @author: Sam
 """
-from mingus.containers import Note
+from mingus.containers import Note, Track, Bar
+from mingus.core.mt_exceptions import NoteFormatError
 import mingus.core.progressions as progressions
-#from mingus.midi import midi_file_out
-from mingus.containers import Track, Bar
 from mingus.core import intervals, notes
 import mingus.core.scales as scales
 import mingus.core.chords as chords
 from mingus.core.chords import from_shorthand, chord_note_and_family, diatonic_thirteenth
+from mingus.midi import midi_file_out
 
-#from datetime import datetime
+from datetime import datetime
 import numpy as np
 import random
 
@@ -40,7 +40,7 @@ def move_b_above_a_with_modularity(a,b,mod): # return min{x: x==b modulo 'mod' &
         return b
 
 
-#%% Charts / Progressions
+#%% Charts / Progressions / Chords
 def parse_symbol(symbol):
     '''
         Notes:
@@ -121,7 +121,6 @@ def progression_to_chords(progression, prog_type='shorthand'):
         chords_ = [progressions.to_chords(chord)[0] for chord in progression]
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
-#%% Chords
 def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major'):
     '''
     params:
@@ -181,18 +180,53 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
     if key is None:
         key = assume_key(root, chord_type)
 
-    diatonic_extended_chord = diatonic_thirteenth(root, key)
-    extension_index = {1:0, 3:1, 5:2, 7:3, 9:4, 11:5, 13:6}
+    try:
+        diatonic_extended_chord = diatonic_thirteenth(root, key)
+    except NoteFormatError:
+        try:
+            diatonic_extended_chord = diatonic_thirteenth(root, synonyms[key])
+        except KeyError:
+            try:
+                diatonic_extended_chord = diatonic_thirteenth(root, synonyms_r[key])
+            except:
+                print(f'Problem fetching diatonic_thirteenth({root},{key})')
+
+    extension_index = {1:0, 3:1, 5:2, 7:3, 9:4, 2:4, 11:5, 4:5, 13:6, 6:6}
     return diatonic_extended_chord[extension_index[extension]]
 
-def chords_to_track(chords, durations):
+#%% Tracks / MIDI
+
+def notes_durations_to_track(_notes, durations):
+    '''
+    params:
+    - _notes: list of list of Notes [['G','B','D','F'], ['C','E','G','B']]
+    - durations: Durations should be a list of integers e.g. [2,2,1] will give | chord 1 chord 2 | chord 3 |
+
+    TO-DO: 
+        - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
+    
+    '''
     t = Track()
-    for i, chord in enumerate(chords):
+    for i, _note in enumerate(_notes):
         b = Bar()
-        b.place_notes(chord, durations[i]) # default octave is ['C','E','G']->['C-4','E-4','G-4'] (this is the first instance of voicing)
+        b.place_notes(_note, durations[i]) 
         t.add_bar(b)
     return t
 
+def track_to_midi(t, name='midi_out\\untitled', save=True, timestamp=True):
+    '''
+    Saves a mingus Track t to a midi file {name}.mid (automatically adds a timestamp)
+    Returns name of the created file
+    '''
+    if timestamp:
+        name += datetime.now().strftime('%Y%m%d%H%M%S')
+
+    if save:
+        midi_file_out.write_Track(f'{name}.mid', t)
+        print(f'Saved: {name}.mid')
+        return name
+
+    return None
 
 
 #%% Generative
