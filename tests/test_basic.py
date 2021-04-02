@@ -154,19 +154,24 @@ class BasicVoicingHandling(unittest.TestCase):
         
         assert (cond1 & cond2)
     
-    def test_individual_chord_voicing_option(self):
+    def test_individual_chord_voicing_option_rootless(self):
 
         from mingus.containers import Note
         from sidewinder.voicings.voicings import apply_individual_chord_voicing
         
-        # the idea for this test is to figure out a good way for adding new voices, when re-writing rootless and shell to work with apply_individual_chord_voicing()
-        # ideally there is a way to schematically specify voicings e.g. rootless = 3rd+5th+7th ascending (illustrative example)
-        # 
-        #  
-        cond1 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless')[3] == 'F-5') # TO-DO: update target from 'F-5' to the correct target
-        cond2 = (apply_individual_chord_voicing('Gm7', voicing_type='shell', semitones=True)[3] == int(Note('F',5))) # TO-DO: update target from 'F-5' to the correct target
+        # we would expect Gm7 to be voiced as (type B): 7,9,3,5 == F,A,Bb,D
+        cond1 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless', semitones=True, type='B')[0] == int(Note('F')))
+        cond2 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless', semitones=True, type='B')[1] == int(Note('A')))
+        cond3 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless', semitones=True, type='B')[2] == int(Note('Bb')))
+        cond4 = (apply_individual_chord_voicing('Gm7', voicing_type='rootless', semitones=True, type='B')[3] == int(Note('D')))
+
+        # we would expect D7 to be voiced as (type A): 7,9,3,13 == C,E,F#,B
+        cond5 = (apply_individual_chord_voicing('D7', voicing_type='rootless', semitones=True)[0] == int(Note('C')))
+        cond6 = (apply_individual_chord_voicing('D7', voicing_type='rootless', semitones=True)[1] == int(Note('E')))
+        cond7 = (apply_individual_chord_voicing('D7', voicing_type='rootless', semitones=True)[2] == int(Note('F#')))
+        cond8 = (apply_individual_chord_voicing('D7', voicing_type='rootless', semitones=True)[3] == int(Note('B')))
         
-        assert (cond1 & cond2)
+        assert (cond1 & cond2 & cond3 & cond4) & (cond5 & cond6 & cond7 & cond8)
 
     
     def test_smooth_voice_leading(self):

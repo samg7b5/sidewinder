@@ -3,7 +3,7 @@ import mingus.core.notes as notes
 from mingus.containers import Note
 import mingus.core.chords as chords
 
-from sidewinder.utilities import move_b_above_a_with_modularity
+from sidewinder.utilities import move_b_above_a_with_modularity, get_diatonic_upper_chord_extension
 from sidewinder.voicings.voicing_utilities import rebuild_chord_upwards, add_bass_note_to_slash_chord
 
 
@@ -32,7 +32,7 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
 
 def default_voice(chord:str):
     '''
-    Expects a shorthand string like 'CM7' and will return with the natural voicing of ascending extensions as Notes
+    Expects a shorthand string like 'CM7' and will return with the natural voicing of ascending extensions as semitones (integers)
     '''
     note_names = chords.from_shorthand(chord) # shorthand -> unpitched note strings ['C', 'E', 'G', 'B']
     voiced_semitones = rebuild_chord_upwards([int(Note(note)) for note in note_names])
@@ -88,7 +88,7 @@ def shell_voice(progression, durations, prog_type='shorthand', roots=False, exte
     voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
     return voiced_chords
 
-def rootless_voice(chord:str, key=None, type=None):
+def rootless_voice(chord:str, key=None, type=None, mode='major'):
     '''
 
     - 3rds and 7ths define chord quality
@@ -123,11 +123,7 @@ def rootless_voice(chord:str, key=None, type=None):
     
     '''
 
-
-    chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
-
     # specify recipes for the different chord types in terms of diatonic scale degrees (e.g. 3 in m7 is a minor 3rd)
-
     recipes_A = {'M7': [3,5,7,9],
                '7': [7,9,3,13],
                'm7': [3,5,7,9]}
@@ -142,81 +138,13 @@ def rootless_voice(chord:str, key=None, type=None):
         recipes = recipes_A
 
     # apply recipes
-    
-    # if no recipe specified, default voice (return this as a None flag and handle it in the parent function)
+    voiced_chord = []
+    root, chord_type = chords.chord_note_and_family(chord) # 'D', 'm7'
+    try:
+        for extension in recipes[chord_type]:
+            voiced_chord.append(get_diatonic_upper_chord_extension(chord, extension, key=key, mode=mode))
+        return [int(Note(note)) for note in voiced_chord]
 
-
-
-
-
-
-    
-    key_offset = {'M7':0,
-                  '7': int(Note('G')) - int(Note('C')),
-                  'm7': int(Note('D')) - int(Note('C'))            
-                  }
-    majors = ['maj7', 'M']
-    minors = ['min7', 'm', '-', '-7', 'm9']
-    doms = ['dom7', 'dom', '9']
-    for synonym in majors:
-        key_offset[synonym] = key_offset['M7']
-    for synonym in minors:
-        key_offset[synonym] = key_offset['m7']
-    for synonym in doms:
-        key_offset[synonym] = key_offset['7']
-    majors = majors + ['M7']
-    minors = minors + ['m7']
-    doms = doms + ['7']
-    
-    voiced_chords = []
-    slash_chord = False
-    for i, chord in enumerate(chords_):
-        chord_root = chord[0]
-        chord_type = chord[1]
-
-        
-
-        
-        try:
-            rel_major = Note().from_int(int(Note(chord_root)) - key_offset[chord_type]).name 
-        except KeyError:
-            print(f'No rootless voicing provided for {chord_type}')
-            rel_major = '' # manually voice exotic chords e.g. 7b9 for now
-        
-        if '#' in rel_major:
-            rel_major = synonyms[rel_major]
-        
-        # TO-DO nb. this section might refactor to enable writing of lines ito scale degrees
-        voiced_chord = None # reset to avoid appending the same voiced_chord (which would hide errors if chords are skipped)
-        if type=='A':
-            if chord_type in majors + minors:
-                voiced_chord = [intervals.interval(rel_major, chord_root, 2), intervals.interval(rel_major, chord_root, 4), 
-                                intervals.interval(rel_major, chord_root, 6), intervals.interval(rel_major, chord_root, 8)] # 3rd, 5th, 7th, 9th
-            elif chord_type in doms:
-                voiced_chord = [intervals.interval(rel_major, chord_root, 6), intervals.interval(rel_major, chord_root, 8),
-                                intervals.interval(rel_major, chord_root, 2), intervals.interval(rel_major, chord_root, 12)] # 7th, 9th, 3rd, 13th
-        elif type=='B':
-            if chord_type in majors:
-                voiced_chord = [intervals.interval(rel_major, chord_root, 5), intervals.interval(rel_major, chord_root, 8), 
-                                intervals.interval(rel_major, chord_root, 2), intervals.interval(rel_major, chord_root, 4)] # 6th, 9th, 3rd, 5th
-            elif chord_type in minors:
-                voiced_chord = [intervals.interval(rel_major, chord_root, 6), intervals.interval(rel_major, chord_root, 8), 
-                                intervals.interval(rel_major, chord_root, 2), intervals.interval(rel_major, chord_root, 4)] # 7th, 9th, 3rd, 5th
-            elif chord_type in doms:
-                voiced_chord = [intervals.interval(rel_major, chord_root, 2), intervals.interval(rel_major, chord_root, 12),
-                                intervals.interval(rel_major, chord_root, 6), intervals.interval(rel_major, chord_root, 8)] # 3rd, 13th, 7th, 9th
-        
-        if chord_type in ['7b9', 'minMaj7', 'm6', 'M6', '7#5', 'o']:
-            voiced_chord = chords.from_shorthand(chord_root + chord_type)
-            if i>0:
-                voiced_chord = smooth_next_chord(voiced_chords[i-1],voiced_chord)
-                voiced_chord = [Note().from_int(int(note)) for note in voiced_chord]
-            
-        if slash_chord:
-            voiced_chord = [int(Note(bass_note, octave=3))] + voiced_chord
-            slash_chord = False
-        
-        voiced_chords.append(rebuild_chord_upwards([Note(note) for note in voiced_chord])) # to preserve the order we just made
-    
-    voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
-    return voiced_chords 
+    except KeyError:
+        print(f'No voicing recipe specified for chord: {chord}')    
+        return None # acts as flag to parent function

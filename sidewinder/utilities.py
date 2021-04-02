@@ -10,9 +10,10 @@ from mingus.containers import Note
 import mingus.core.progressions as progressions
 #from mingus.midi import midi_file_out
 from mingus.containers import Track, Bar
-from mingus.core import intervals
+from mingus.core import intervals, notes
 import mingus.core.scales as scales
 import mingus.core.chords as chords
+from mingus.core.chords import from_shorthand, chord_note_and_family, diatonic_thirteenth
 
 #from datetime import datetime
 import numpy as np
@@ -121,7 +122,68 @@ def progression_to_chords(progression, prog_type='shorthand'):
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
 #%% Chords
+def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major'):
+    '''
+    params:
+        - chord is a (parsed) shorthand symbol e.g. 'Dm7'
+        - extension is an integer representing the target extension (e.g. 3 to give the 3rd (major or minor))
+    '''
 
+    root, chord_type = chord_note_and_family(chord)
+
+    # we consider the thirteenth chords which arise from diatonic chord extensions only,
+    # we then check if our chord is a subchord of any of these diatonic thirteenths;
+    # if it is, then we assume that it plays the role of the chord (roman numeral) which is most likely to generate that thirteenth.
+    # e.g. if we find a G13 then we assume it comes from G7 (V7 in C)
+
+        # More details:
+        # if key is not specified, then default to the most conventional extensions for a given chord type (https://en.wikipedia.org/wiki/Extended_chord#Chord_structure 
+        # Note: Would this be different in a different mode/tonality (e.g. extend me a IV chord while playing a locrian tune...)? Should probably factor this in... (TO-DO)
+
+            # M7 -> M13 (M7, 9, #11*, 13) *by convention
+            # m7 -> m13 (m7, 9, 11, 13)
+            # 7 -> 13 (7, 9, 11, 13)
+            # m7b5 -> m7b5b9b13 (7, b9, 11, b13) (e.g. B D F A -> B D F A C E G)
+
+        # if key is specified then we can work out the degree of our chord (e.g. an FM7 in C is a IV chord) and be more clever with extensions
+
+            # IM7 -> M13#11
+            # IIm7 -> m13 (e.g. DFACEGB) - note that this has a major 13th (https://music.stackexchange.com/questions/16932/why-does-a-cm13-chord-use-a-instead-of-a)
+            # IIIm7 -> m13b9
+            # IVM7 -> M13#11
+            # V7 -> 13
+            # VIm7 -> m7b13 (e.g. ACEGBDF)
+            # VIIm7b5 -> m7b5b9b13
+    def assume_key(root, chord_type):
+        if chord_type in ['M7','M9','M13']:
+            return root
+        elif chord_type in ['m7','m9','m11','m13']:
+            # assume II, e.g. Dm7 -> return C
+            return notes.int_to_note(notes.note_to_int(root) - 2)
+        elif chord_type in ['m7b9', 'm11b9', 'm13b9']:
+            # assume III
+            return notes.int_to_note(notes.note_to_int(root) - 4)
+        elif '#11' in chord_type:
+            # assume IV
+            return notes.int_to_note(notes.note_to_int(root) - 5)
+        elif chord_type in ['7', '9', '11', '13']:
+            # assume V
+            return notes.int_to_note(notes.note_to_int(root) - 7)
+        elif chord_type in ['m7b13']:
+            # assume VI
+            return notes.int_to_note(notes.note_to_int(root) - 9)
+        elif ('b5' in chord_type) or ('dim' in chord_type):
+            # assume VII
+            return notes.int_to_note(notes.note_to_int(root) - 11)
+        else:
+            print(f'Warning: assume_key() does not know how to handle chord_type {chord_type}')
+
+    if key is None:
+        key = assume_key(root, chord_type)
+
+    diatonic_extended_chord = diatonic_thirteenth(root, key)
+    extension_index = {1:0, 3:1, 5:2, 7:3, 9:4, 11:5, 13:6}
+    return diatonic_extended_chord[extension_index[extension]]
 
 def chords_to_track(chords, durations):
     t = Track()
