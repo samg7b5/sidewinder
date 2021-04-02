@@ -4,9 +4,11 @@ Created on Mon Dec 30 19:38:09 2019
 
 @author: Sam
 """
-import sidewinder as sw
-from sidewinder.lick_library import JazzLick #, get_chords_from_track
-
+from sidewinder import Chart
+from sidewinder.voicings.voicings import voice_chords
+from sidewinder.voicings.voice_leading import smooth_voice_leading
+from sidewinder.melodies.basslines import create_walking_bassline
+from sidewinder.utilities import notes_durations_to_track, track_to_midi
 from mingus import *
 
 #%% Playing with progressions and standards
@@ -24,58 +26,35 @@ misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
               1, 2, 2, 2, 2, 2, 2, 
               1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
 
-# create a midi of the chords
-t = sw.chords_to_midi(misty, misty_durs, name='..\\midi_out\\misty_shellrootless', key='Eb', voicing='rootless', type='A') # includes voicing kwargs
-# detect all 2-5's
-two_fives = sw.detect_numeral_pattern(misty, pattern=['II-7','V7'])
+# load the variables into a Chart
+mistyChart = Chart(progression=misty, key='F')
+mistyChart.set_durations(durations=misty_durs)
 
-tb = sw.chords_to_bassline_midi(misty, misty_durs, name='midi_out\\misty_bass', key='Eb') # includes voicing kwargs
-    
+# voice the (auto-generated) shorthand chords, and export the (voiced chords, durations) as midi
+print(mistyChart.progressionShorthandList)
+voiced_chords = voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='A')
+track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), name='midi_out\\misty_rootlessA_example', timestamp=False)
+
+# generate a walking bassline and export as midi
+bassline_track = create_walking_bassline(mistyChart.progressionShorthandList, mistyChart.durations)
+track_to_midi(bassline_track, name='midi_out\\misty_wb_example', timestamp=False)
+
+# TO-DO: detect all 2-5's
+#two_fives = sw.detect_numeral_pattern(misty, pattern=['II-7','V7'])
+
 
 # 2. Shorthand -> midi
 giant_steps = 'Abmaj7, B7, Emaj7, G7, Cmaj7, F#-7, B7, Emaj7, G7, Cmaj7, Eb7, Abmaj7, D-7, G7, Cmaj7, F#-7, B7, Emaj7, Bb-7, Eb7, Abmaj7, D-7, G7, Cmaj7, Bb-7, Eb7'
 bt2 = [2,2]
 giant_steps_durs = 2*bt2 + [1] + 3*bt2 + [1] + 4*(bt2 + [1]) + bt2
 
-t = sw.chords_to_midi(giant_steps, giant_steps_durs, voicing='shell', name='midi_out\\giant_stepssh') # no need to specify a key
-tb = sw.chords_to_bassline_midi(giant_steps, giant_steps_durs, name='midi_out\\giantsteps_bass', walking=True, key='Eb') # includes voicing kwargs
+gsChart = Chart(progression=giant_steps)
+gsChart.set_durations(durations=giant_steps_durs)
 
+print(gsChart.get_numeral_representation(key='Ab'))
 
-# Combining 1 & 2:
-# input chord symbols and perform roman numeral analysis:
-gs_numerals = sw.shorthand_to_numerals(giant_steps, key='A')
-two_fives = sw.detect_numeral_pattern(gs_numerals, pattern=['II-7','V7'])
-
-
-# other examples
-sentimental = 'E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, Ab7, Gmaj7, F-7, Bb7, Ebmaj7, C-7, F-7, Bb7, Ebmaj7, C7, F7, Bb7, Ebmaj7, C-7, F-7, Bb7, A-7, D7, E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, D7b9, Gmaj7'
-sentimental_durs = [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 2, 4, 4] + 6*[2, 2] + [1, 1] + [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 1]
-
-somedaymyprince = 'Cmaj7, E7#5, Fmaj7, A7#5, D-7, A7#5, D7, G7, ' + 'E-7, D#o, D-7, G7, E-7, D#o, D-7, G7, ' + 'Cmaj7, E7#5, Fmaj7, A7#5, D-7, A7#5, D7, G7, ' + 'G-7, C7, F7, F#o, C/G, D-7/G, G7, C'
-somedaymyprince_durs = 29*[1] + [2,2,1]
-
-desafinado = 'Gmaj7, A7b5, A-7, D7, B-7b5, E7b9, A-7, B7b9, E7, E7b9, A7b9, Abmaj7, D7b9, Gmaj7, A7b5, A-7, D7, B-7b5, E7b9, A-7, C-6, Gmaj7, C#-7b5, F#7#9, Bmaj7, Co7, C#-7, F#7, Bmaj7, Co7, C#-7, F#7, Bmaj7, G#-7, C#-7, F#-7, Dmaj7, D#o7, E-7, A7, A-7, F-6, A7, D7b9, Gmaj7, A7b5, A-7, D7, B-7b5, E7, A-7, C-6, Gmaj7, E-7, A7, C-7, F7, A7, A-7, D7, G6'
-desafinado_durs = [1,1,2,2,2,2,2,2,2,2,1,2,2,1,1,2,2,2,2,2,2,2,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,2,2,2,4,4,1]
-
-blueingreen = 'A-7, B7#9, E-7, Eb7b5, D-7, G7b9, Cmaj7, B7#9, E-7, F#7#5, B-7, E-7'
-blueingreen_durs = [1,1,2,2,2,2,1,1,1,1,1,1]
-
-robin = 'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' +'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' + 'B6, C7#5, C#13, C7#5, Bmaj9, Abmaj9, Bmaj9, C#m11b5, F#7, ' + 'C#m9, C#m11b5, F#m7b5'
-robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+smooth_voiced_chords = smooth_voice_leading(voice_chords(gsChart.progressionShorthandList))
+track_to_midi(notes_durations_to_track(smooth_voiced_chords, gsChart.durations), name='midi_out\\giant-steps_smooth-voice-leading_example', timestamp=False)
 
 
 #%% Developing melodic repertoire with LickLibrary
@@ -83,7 +62,7 @@ robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
 ## Importing jazz licks from midi into the library
 #### see LickLibrary.py (should be moved here in future)
 
-y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
+#y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
 
 
 #%% Generative

@@ -2,16 +2,16 @@
 
 from setuptools import setup, find_packages
 
-
-with open('README.rst') as f:
-    readme = f.read()
+readme = 'Sidewinder is a jazz programming library'
+#with open('README.rst') as f:
+#    readme = f.read()
 
 with open('LICENSE') as f:
     license = f.read()
 
 setup(
     name='sidewinder',
-    version='0.1.0',
+    version='0.1.1',
     description='Sidewinder jazz programming library',
     long_description=readme,
     author='Sam Gould',
