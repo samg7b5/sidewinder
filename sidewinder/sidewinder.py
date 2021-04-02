@@ -126,9 +126,6 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
     progression = utilities.parse_progression(progression)
     pattern = utilities.parse_progression(pattern)
     
-    
-    
-    
     # REFACTORING: looks like we can keep the rest of the code as a detect_numeral_pattern Progression method 
     window_size = len(pattern)
     

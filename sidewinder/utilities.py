@@ -196,7 +196,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
 
 #%% Tracks / MIDI
 
-def notes_durations_to_track(_notes, durations):
+def notes_durations_to_track(_notes, durations=None):
     '''
     params:
     - _notes: list of list of Notes [['G','B','D','F'], ['C','E','G','B']]
@@ -206,6 +206,9 @@ def notes_durations_to_track(_notes, durations):
         - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
     
     '''
+    if durations is None:
+        durations = [1]*len(_notes)
+
     t = Track()
     for i, _note in enumerate(_notes):
         b = Bar()

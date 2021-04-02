@@ -154,7 +154,7 @@ class BasicVoicingHandling(unittest.TestCase):
         
         assert (cond1 & cond2)
     
-    def est_individual_chord_voicing_option_rootless(self):
+    def test_individual_chord_voicing_option_rootless(self):
 
         from mingus.containers import Note
         from sidewinder.voicings.voicings import apply_individual_chord_voicing
@@ -181,15 +181,26 @@ class BasicVoicingHandling(unittest.TestCase):
         from sidewinder.utilities import notes_durations_to_track, track_to_midi
         from sidewinder.voicings.voicings import voice_chords
 
-        # TO-DO: refactor the line below into a Chart method?
-        assert track_to_midi(notes_durations_to_track(voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='A'), mistyChart.durations)) is not None
+        # TO-DO: refactor the below into a Chart method?
+        print('=== testing basic voiced chord midi out - please manually inspect the generated midi file: ===')
+        voiced_chords = voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='A')
+        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations)) is not None
 
     
     def test_smooth_voice_leading(self):
 
-        
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        mistyChart.set_durations(durations=self.misty_durs)
 
-        assert True
+        from sidewinder.utilities import notes_durations_to_track, track_to_midi
+        from sidewinder.voicings.voicings import voice_chords
+        from sidewinder.voicings.voice_leading import smooth_voice_leading
+
+        print('=== testing smooth voice leading - please manually inspect the generated midi file: ===')
+        voiced_chords = voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='B')
+        smooth_voiced_chords = smooth_voice_leading(voiced_chords)
+        assert track_to_midi(notes_durations_to_track(smooth_voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_SVL') is not None
+        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_default') is not None
 
     def test_generate_midi_from_shorthands_and_durations_in_4_4(self):
 

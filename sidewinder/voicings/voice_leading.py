@@ -1,6 +1,8 @@
 import numpy as np
 from mingus.containers import Note
 import mingus.core.chords as chords
+from sidewinder.utilities import notes_durations_to_track
+from sidewinder.voicings.voicing_utilities import *
 
 def smooth_next_chord(voiceA, chordB):
     '''
@@ -12,12 +14,13 @@ def smooth_next_chord(voiceA, chordB):
     voiceB = inversions[np.argmin(distances)]
     return voiceB
 
-def smooth_voice_leading(progression, durations, prog_type='shorthand'):
+def smooth_voice_leading(_chords):
+    '''
+    _chords is a list of lists of Notes [['C', 'E', 'G', 'B'],...] 
+    This function will permute the notes of _chords[n+1] to make it follow smoothly from _chords[n] 
+    '''
     
-    chords_ = progression_to_chords(progression, prog_type)
-    # here, chords_ is a list of lists [['C', 'E', 'G', 'B'],...] (which will default to octave as C-4 etc in chords_to_track)
-    
-    track = chords_to_track(chords_, durations)
+    track = notes_durations_to_track(_chords)
     
     voiced_chords = []
     for i, event in enumerate(track):
