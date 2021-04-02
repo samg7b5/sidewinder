@@ -72,50 +72,6 @@ class Chart():
             self.durations = durations
 
 
-
-#%% Chords
-
-def chords_to_bassline_midi(progression=['Dm7','G7','CM7'], durations=None, walking=True, name='midi_out\\bassline', key='C', save=True):
-        
-    # REFACTORING: take inspiration from chords_to_midi()
-    
-    # # PROGRESSION logic
-    # progression = utilities.parse_progression(progression)
-    
-    # if durations is not None and not len(durations) == len(progression):
-    #     print('Warning - length mismatch')
-    # if durations is None:
-    #     durations = len(progression)*[1]
-
-    # # numeral_to_sh (-> PROGRESSION logic)    
-    # if progression[0][0] in ['I', 'V', 'i', 'v']:
-    #     progression = [progressions.to_chords(chord)[0] for chord in progression]
-    #     progression = [chords.determine(chord, shorthand=True)[0] for chord in progression] # shorthand e.g. Dm7
-        
-    
-    # chord_tuple_list
-    # REFACTORING: this looks different to progressions, is this separate chord logic? looks like a raw mingus import actually, so be clever in where this goes (maybe as part of the overall workflow logic)
-    chords_ = [chords.chord_note_and_family(chord) for chord in progression] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
-    
-    
-    # REFACTORING: having a specific _bassline function seems like a quick hack - now we should generalise to horizontal composition (where voicings are vertical composition)
-    # for chords_to_track refactoring, see function above (tease apart 'horizontal' (eg walking) and 'output' (eg track->midi) logic/choices)
-    bassline = [Note(chord[0], octave=3) for chord in chords_]
-    t = utilities.notes_durations_to_track(bassline, durations)
-    if walking:
-        bassline, durations = utilities.create_walking_bassline(chords_, durations)
-        t = utilities.notes_durations_to_track(bassline, durations)
-    
-    # MIDI logic
-    if name == 'midi_out\\bassline':
-        name += datetime.now().strftime('%Y%m%d%H%M%S')
-    if save:
-        midi_file_out.write_Track(f'{name}.mid', t)
-        print(f'Saved: {name}.mid')
-    return t
-
-
-
 #%% Analysis
 def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing=True, original_key='C'):
     '''

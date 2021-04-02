@@ -184,9 +184,8 @@ class BasicVoicingHandling(unittest.TestCase):
         # TO-DO: refactor the below into a Chart method?
         print('=== testing basic voiced chord midi out - please manually inspect the generated midi file: ===')
         voiced_chords = voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='A')
-        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations)) is not None
+        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), timestamp=False) is not None
 
-    
     def test_smooth_voice_leading(self):
 
         mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
@@ -199,24 +198,32 @@ class BasicVoicingHandling(unittest.TestCase):
         print('=== testing smooth voice leading - please manually inspect the generated midi file: ===')
         voiced_chords = voice_chords(mistyChart.progressionShorthandList, voicing_type='rootless', type='B')
         smooth_voiced_chords = smooth_voice_leading(voiced_chords)
-        assert track_to_midi(notes_durations_to_track(smooth_voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_SVL') is not None
-        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_default') is not None
-
-    def test_generate_midi_from_shorthands_and_durations_in_4_4(self):
-
-        assert True
+        assert track_to_midi(notes_durations_to_track(smooth_voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_SVL', timestamp=False) is not None
+        assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_default', timestamp=False) is not None
 
     def test_generate_midi_from_shorthands_and_durations_in_3_4(self):
 
         assert True
 
-    def test_generate_midi_with_choice_of_voicing(self):
+    def test_generate_simple_bassline_midi(self):
 
-        assert True
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        
+        from sidewinder.utilities import notes_durations_to_track, track_to_midi
+        from sidewinder.melodies.basslines import simple_bassline
+        bassline_track = simple_bassline(mistyChart.progressionShorthandList, self.misty_durs)
+
+        assert track_to_midi(bassline_track, name='midi_out\\bassline_test', timestamp=False) is not None
 
     def test_generate_walking_bassline_midi(self):
 
-        assert True
+        mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        
+        from sidewinder.utilities import notes_durations_to_track, track_to_midi
+        from sidewinder.melodies.basslines import create_walking_bassline
+        bassline_track = create_walking_bassline(mistyChart.progressionShorthandList, self.misty_durs)
+
+        assert track_to_midi(bassline_track, name='midi_out\\walking_bassline_test', timestamp=False) is not None
 
     def test_generate_1351_exercise_for_given_scale(self):
 

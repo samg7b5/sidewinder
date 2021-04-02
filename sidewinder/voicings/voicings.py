@@ -16,6 +16,8 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
     voiced_semitones = None
     if voicing_type is None:
         voiced_semitones = default_voice(chord)
+    elif voicing_type == 'root':
+        voiced_semitones = root_only_voice(chord)
     if voicing_type == 'shell':
         voiced_semitones = None
     elif voicing_type == 'rootless':
@@ -48,6 +50,14 @@ def default_voice(chord:str):
     '''
     note_names = chords.from_shorthand(chord) # shorthand -> unpitched note strings ['C', 'E', 'G', 'B']
     voiced_semitones = rebuild_chord_upwards([int(Note(note)) for note in note_names])
+    return voiced_semitones # ensure we voice from root upwards (in case e.g. everything defaulted to same octave)
+
+def root_only_voice(chord:str):
+    '''
+    Expects a shorthand string like 'CM7' and will return with the root only (as semitone integer)
+    '''
+    note_names = chords.from_shorthand(chord) # shorthand -> unpitched note strings ['C', 'E', 'G', 'B']
+    voiced_semitones = rebuild_chord_upwards([int(Note(note_names[0], octave=3))])
     return voiced_semitones # ensure we voice from root upwards (in case e.g. everything defaulted to same octave)
     
 
