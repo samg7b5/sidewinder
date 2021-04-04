@@ -130,6 +130,9 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
 
     root, chord_type = chord_note_and_family(chord)
 
+    extension_index = {1:0, 3:1, 5:2, 7:3, 9:4, 2:4, 11:5, 4:5, 13:6, 6:6}
+
+
     # we consider the thirteenth chords which arise from diatonic chord extensions only,
     # we then check if our chord is a subchord of any of these diatonic thirteenths;
     # if it is, then we assume that it plays the role of the chord (roman numeral) which is most likely to generate that thirteenth.
@@ -153,8 +156,14 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
             # V7 -> 13
             # VIm7 -> m7b13 (e.g. ACEGBDF)
             # VIIm7b5 -> m7b5b9b13
-    def assume_key(root, chord_type):
-        if chord_type in ['M7','M9','M13']:
+    def assume_key(root, chord_type, mode):
+
+        if mode == 'harmonic_minor':
+            if chord_type in ['7b9']:
+                # assume V (C7b9 implies F harmonic minor, i.e. 7b9 is phyrgian dominant (V mode of HM)) TODO: refactor?
+                return notes.int_to_note(notes.note_to_int(root) - 7) 
+        
+        if chord_type in ['M7','M9','M13','M6']:
             return root
         elif chord_type in ['m7','m9','m11','m13']:
             # assume II, e.g. Dm7 -> return C
@@ -175,11 +184,19 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
             # assume VII
             return notes.int_to_note(notes.note_to_int(root) - 11)
         else:
-            print(f'Warning: assume_key() does not know how to handle chord_type {chord_type}')
+            #print(f'\nWarning: utilities.assume_key() does not know how to handle chord_type {chord_type}')
+            pass
 
     if key is None:
-        key = assume_key(root, chord_type)
+        key = assume_key(root, chord_type, mode)
 
+        # TODO: handle modes / alterations (also see above)
+        # assume_key() is assuming major tonality (more precisely, diatonic_thirteen() is assuming major tonality and assume_key() provides accordingly)
+        if key is None: # if assume_key didn't work e.g. for a 7b9 which does not arise on any 7th chord built from the major scale
+            if chord_type == '7b9':
+                diatonic_extended_chord = chords.dominant_flat_ninth(root) + chords.major_triad(intervals.minor_second(root))[1:]# 1 3 5 b7 b9 11 b13
+            return diatonic_extended_chord[extension_index[extension]]
+    
     try:
         diatonic_extended_chord = diatonic_thirteenth(root, key)
     except NoteFormatError:
@@ -191,7 +208,6 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
             except:
                 print(f'Problem fetching diatonic_thirteenth({root},{key})')
 
-    extension_index = {1:0, 3:1, 5:2, 7:3, 9:4, 2:4, 11:5, 4:5, 13:6, 6:6}
     return diatonic_extended_chord[extension_index[extension]]
 
 #%% Tracks / MIDI
