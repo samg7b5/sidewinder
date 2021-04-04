@@ -248,11 +248,33 @@ class MoreStuff(unittest.TestCase):
 
     def test_better_extension_from_chord_function(self):
 
-        assert (sidewinder.utilities.get_diatonic_upper_chord_extension('C7b9',9) == 'Db') & (sidewinder.utilities.get_diatonic_upper_chord_extension('C7b9',13) == 'Ab')
+        from sidewinder.utilities import get_diatonic_upper_chord_extension as f
+        cond1 = (f('D7',3) == 'F#')
+        cond2 = (f('D7',7) == 'C')
+        cond2 = (f('D7',9) == 'E')
+        cond3 = (f('CM6',6) == 'A')
+        cond4 = (f('GM13',13) == 'E')
+        cond5 = (f('C7b9',9) == 'Db')
+        cond6 = (f('C7b9',13) == 'Ab') # f assumes a 7b9 is a harmonic minor V7 (e.g. C7b9 from F harmonic minor has Ab, Bb, Db)
 
-    def test_generate_1351_exercise_for_given_scale(self):
+        assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
 
-        assert True
+    def test_generate_135arp_for_each_major_scale_ascending_chord_around_cycle_of_fifths(self):
+
+        from sidewinder.utilities import cycle_of_fifths
+        from sidewinder.melodies.patterns import get_scale_patterns
+
+        patterns = get_scale_patterns('Major', p=[1,3,5], keys=cycle_of_fifths(start='D')) # returns ascending scale patterns
+        keys = [k for k,v in patterns.items()]
+  
+        cond1 = (patterns[keys[0]][0][0] == 'D')
+        cond2 = (patterns[keys[0]][0][1] == 'F#')
+        cond3 = (patterns[keys[0]][0][2] == 'A')
+        cond4 = (patterns[keys[1]][1][0] == 'B')
+        cond5 = (patterns[keys[2]][1][1] == 'A') # E -> F# -> A as m3
+        cond6 = (patterns[keys[3]][2][2] == 'A#') # B -> D# -> A# as 5th
+
+        assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
 
     def test_detect_all_251s(self):
 

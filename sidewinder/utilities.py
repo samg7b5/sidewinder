@@ -39,6 +39,20 @@ def move_b_above_a_with_modularity(a,b,mod): # return min{x: x==b modulo 'mod' &
             b+=mod
         return b
 
+def cycle_of_fifths(start='C', repeats=0):
+    preferred_accidentals = {'C#':'Db',
+                             'G#':'Ab',
+                             'D#':'Eb',
+                             'A#':'Bb'}
+    out = []
+    repeat_counter = 0
+    next_note = start
+    while repeat_counter <= repeats:
+        out.append(next_note)
+        next_note = notes.reduce_accidentals(intervals.perfect_fifth(next_note))
+        if str(next_note) == start:
+            repeat_counter += 1 
+    return [preferred_accidentals[note] if note in preferred_accidentals.keys() else note for note in out]
 
 #%% Charts / Progressions / Chords
 def parse_symbol(symbol):
@@ -190,7 +204,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
     if key is None:
         key = assume_key(root, chord_type, mode)
 
-        # TODO: handle modes / alterations (also see above)
+        # TODO: handle modes / alterations (also see above) // ALSO SEE LICK_ANALYTICS.PY FOR SOME USEFUL LOOKING STUFF <-------------------------------------- also cf patterns.py
         # assume_key() is assuming major tonality (more precisely, diatonic_thirteen() is assuming major tonality and assume_key() provides accordingly)
         if key is None: # if assume_key didn't work e.g. for a 7b9 which does not arise on any 7th chord built from the major scale
             if chord_type == '7b9':
