@@ -246,6 +246,10 @@ class MoreStuff(unittest.TestCase):
             1, 2, 2, 2, 2, 2, 2, 
             1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
 
+    def test_better_extension_from_chord_function(self):
+
+        assert (sidewinder.utilities.get_diatonic_upper_chord_extension('C7b9',9) == 'Db') & (sidewinder.utilities.get_diatonic_upper_chord_extension('C7b9',13) == 'Ab')
+
     def test_generate_1351_exercise_for_given_scale(self):
 
         assert True

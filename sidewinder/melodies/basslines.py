@@ -32,7 +32,7 @@ def create_walking_bassline(_chords, durations=None):
     chords_ = [chord_note_and_family(c) for c in _chords]
 
     variants = ['pedal', 'arp7', 'arp', 'diat', 'chrom', 'dblchrm']
-    variant_weights = [0.5,5,5,2,1,0.5]
+    variant_weights = [.5,5,5,2,.5,.3]
     styles = random.choices(population=variants, weights=variant_weights, k=len(chords_))
     
     bassline = []
