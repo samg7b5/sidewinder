@@ -56,16 +56,66 @@ print(gsChart.get_numeral_representation(key='Ab'))
 smooth_voiced_chords = smooth_voice_leading(voice_chords(gsChart.progressionShorthandList))
 track_to_midi(notes_durations_to_track(smooth_voiced_chords, gsChart.durations), name='midi_out\\giant-steps_smooth-voice-leading_example', timestamp=False)
 
+#%% Generating scale patterns for practice exercises
 
-#%% Developing melodic repertoire with LickLibrary
+# 3. 10 Warmup Exercises Every Jazz Musician Should Know
+#    inspired by Chad LB https://www.youtube.com/watch?v=hOQL9grV7Lw
 
-## Importing jazz licks from midi into the library
-#### see LickLibrary.py (should be moved here in future)
+from sidewinder.utilities import cycle_of_fifths
+from sidewinder.melodies.patterns import get_scale_patterns
 
-#y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
+# chord shape exercises
+
+# 3.1 1234 shape
+asc = [1,2,3,4,5,4,3,1]
+desc = [1,2,3,4,3,2,1,6]
+
+exercises = {}
+exercises[0] = None
+exercises[1] = get_scale_patterns('Major', p=asc, keys=cycle_of_fifths()) 
+exercises[2] = get_scale_patterns('Major', p=desc, keys=cycle_of_fifths(), descending=True)
 
 
-#%% Generative
+# 3.2 1234 with chromatic approach
 
-# e.g. generate scale degree patterns across any scale (like 7 1 3 5 7 on all modes, for ex) - cf LickAnalytics.py
 
+
+# 3.3  1235 shape
+
+
+
+# 3.4 1235 with enclosure
+
+
+# 3.5 arpeggiate up/down scale
+arp7 = [1,3,5,7,8,7,5,3,1]
+
+
+# 3.6 add a chromatic approach note to every note in the previous exercise (!)
+
+
+# 3.7 pentatonics
+# major_pentatonic = getScaleDegrees(scales.pentatonics('C','major'), 'C') # PSEUDOCODE (EXPECT = [1,2,3,5,7]?)
+# minor_pentatonic = ...
+
+# generate_random_pentatonic_patterns
+
+
+# 3.8 triad pairs (hexatonics)
+
+
+
+# 3.9 chromatic cells
+
+
+
+# 3.10 triplet approach notes
+
+
+
+
+
+  
+        
+
+# %%

@@ -260,6 +260,17 @@ class MoreStuff(unittest.TestCase):
         assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
 
     def test_generate_135arp_for_each_major_scale_ascending_chord_around_cycle_of_fifths(self):
+        '''
+        D  F#  A
+          E  G  B
+            F# A C#
+              ...
+        
+        A  C#  E
+          B  D  F#
+
+        etc.
+        '''
 
         from sidewinder.utilities import cycle_of_fifths
         from sidewinder.melodies.patterns import get_scale_patterns

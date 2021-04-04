@@ -33,7 +33,7 @@ scale_gens= {'major': scales.Major,
              'harmonic minor':scales.HarmonicMinor,
              'melodic minor':scales.MelodicMinor,
              'octatonic':scales.Octatonic, # WH diminished
-             'minor neapolitan':scales.MinorNeapolitan, # this is the only scale that I'm not familiar with :)
+             'minor neapolitan':scales.MinorNeapolitan,
              'diminished':scales.Octatonic,
              'whole-half diminished':scales.Octatonic,
              'half-whole diminished':scales.HalfWholeDiminished,

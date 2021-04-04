@@ -197,14 +197,16 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
         elif ('b5' in chord_type) or ('dim' in chord_type):
             # assume VII
             return notes.int_to_note(notes.note_to_int(root) - 11)
+        elif chord_type in ['7b9']: # TODO: refactor so that this is not an ad hoc exception (given 7b9 is covered below) but instea maybe automatically check all hminor modes etc
+            pass
         else:
-            #print(f'\nWarning: utilities.assume_key() does not know how to handle chord_type {chord_type}')
+            print(f'\nWarning: utilities.assume_key() does not know how to handle chord_type {chord_type}')
             pass
 
     if key is None:
         key = assume_key(root, chord_type, mode)
 
-        # TODO: handle modes / alterations (also see above) // ALSO SEE LICK_ANALYTICS.PY FOR SOME USEFUL LOOKING STUFF <-------------------------------------- also cf patterns.py
+        # TODO: handle modes / alterations (also see above) 
         # assume_key() is assuming major tonality (more precisely, diatonic_thirteen() is assuming major tonality and assume_key() provides accordingly)
         if key is None: # if assume_key didn't work e.g. for a 7b9 which does not arise on any 7th chord built from the major scale
             if chord_type == '7b9':
