@@ -252,6 +252,7 @@ print(f'Choices are {triad1_name} and {triad2_name}')
 
 # TODO: generate some triad pair patterns
 
+
 # 3.9 chromatic cells
 scale_choice = 'chromatic'
 keys = ['C']#cycle_of_fifths()
@@ -265,15 +266,78 @@ exercises[17] = get_scale_patterns(scale_choice, p=[chrom_to_pattern[note]+1 for
 for key in list(exercises[17].keys()):
     for note_chunk in exercises[17][key]:
         note_chunk[0] = Note().from_int(int(note_chunk[0]) + 12) # can't just edit Note.octave as the ref is shared across the scale and key
-print(exercises[17])
 
 
 # 3.10 triplet approach notes
+scale_choice = 'major'
+keys = ['C','G']
+
+def replace_with_triplet_approach(start,end):
+    start = int(start)
+    end = int(end)
+    if abs(end-start) == 3:
+        return [Note().from_int(start), Note().from_int(start - 1), Note().from_int(start - 2)]
+    else:
+        return [Note().from_int(start), Note().from_int(start - 2), Note().from_int(start - 3)]
+
+## ascending
+p = [1,2,3,4,4,4]
+first_pass = get_scale_patterns(scale_choice, p, keys=keys)
+new_exercise = OrderedDict()
+for key in list(first_pass.keys()):
+    new_exercise[key] = []
+    for j, start_position_chunk in enumerate(first_pass[key]):
+        for i, n in enumerate(start_position_chunk):
+            # unchanged apart from the 4th note of every 6
+            if ((i+3) % 6 != 0):
+                new_exercise[key].append(n)
+            else:
+                try:
+                    target = first_pass[key][j+1][0]
+                except IndexError:
+                    target = int(first_pass[key][0][0])+12
+                new_exercise[key] += replace_with_triplet_approach(n, target)
+                break
+exercises[18] = new_exercise.copy()
+
+## descending
+p = [1,2,3,2,2,2]
+first_pass = get_scale_patterns(scale_choice, p, keys=keys, descending=True)
+new_exercise = OrderedDict()
+for key in list(first_pass.keys()):
+    new_exercise[key] = []
+    for j, start_position_chunk in enumerate(first_pass[key]):
+        for i, n in enumerate(start_position_chunk):
+            # unchanged apart from the 4th note of every 6
+            if ((i+3) % 6 != 0):
+                new_exercise[key].append(n)
+            else:
+                try:
+                    target = first_pass[key][j+1][0]
+                except IndexError:
+                    target = int(first_pass[key][0][0])+12
+                new_exercise[key] += replace_with_triplet_approach(n, target)
+                break
+exercises[19] = new_exercise.copy()
 
 
+# Now let's export our exercises as midi
+to_save = list(set(range(20)) - set([0,8,16]))
+saving = False
 
+def flatten(myList):
+    if type(myList[0]) == list:
+        return flatten([element for sublist in myList for element in sublist])
+    else:
+        return myList
 
-
+if saving:
+    for i in to_save:
+        exercise = exercises[i] # OrderedDict
+        _notes = []
+        for key in list(exercise.keys()):
+            _notes += flatten(exercise[key])
+        track_to_midi(notes_durations_to_track(_notes, [8]*len(_notes)), name=f'midi_out\\ChadLB_Warmups_{i}', timestamp=False)
   
         
 

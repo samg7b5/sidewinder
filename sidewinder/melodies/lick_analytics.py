@@ -6,7 +6,7 @@ Temporary structure for functions to process and analyse licks (melodic lines)
 
 @author: Sam
 """
-from sidewinder.utilities import synonyms
+from sidewinder.utilities import synonyms, note_to_scale_degree
 import mingus.core.scales as scales
 
 
