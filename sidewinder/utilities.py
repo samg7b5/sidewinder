@@ -31,7 +31,12 @@ synonyms = {'C#':'Db',
             'A#':'Bb',
             'B':'Cb',
             'B#':'C'}
-synonyms_r = {v:k for k,v in synonyms.items()}
+synonyms.update({v:k for k,v in synonyms.items()})
+
+malformed_double_accidentals = {'B##':'C#',
+                                'E##':'F#',
+                                'Cbb':'Bb',
+                                'Fbb':'Eb'}
 
 def move_b_above_a_with_modularity(a,b,mod): # return min{x: x==b modulo 'mod' & x>a}
         b = np.mod(b, mod)
@@ -116,7 +121,7 @@ def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 
             try:
                 numeral = chromatic_numerals[scale_list.index(synonyms[chord[0]])]
             except KeyError:
-                numeral = chromatic_numerals[scale_list.index(synonyms_r[chord[0]])]
+                print(f'No synonym for {chord[0]}')
         numerals_progression.append(numeral+stem)
     
     return numerals_progression
@@ -134,6 +139,19 @@ def progression_to_chords(progression, prog_type='shorthand'):
     elif prog_type == 'numerals': # e.g. IIm7
         chords_ = [progressions.to_chords(chord)[0] for chord in progression]
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
+
+def get_scale(scale_class_name, key, help=False):
+
+    NON_SCALE_CLASSES = ['TemporalNote', '__name__', '__builtins__', 'get_notes', 'RangeError', '_Scale', 'intervals', '__package__', 'keys', '__loader__', 'augment', '__spec__', 'diminish', 'BLUES_INTERVALS', 'determine', 'NoteFormatError', '__cached__', 'FormatError', 'reduce_accidentals', '__doc__', '__file__', 'cycle']
+    NON_SCALE_CLASSES += ['Bachian', 'Diatonic']
+    SCALE_TYPES = list(set(dir(scales)) - set(NON_SCALE_CLASSES))
+    if help:
+        print('scale_class_name should be one of: ', SCALE_TYPES)
+        
+    # TODO see lick_analytics scale_gens
+
+
+    return eval(f"scales.{scale_class_name}(\'{key}\')")  # alternatively see https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
 
 def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major'):
     '''
@@ -219,10 +237,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
         try:
             diatonic_extended_chord = diatonic_thirteenth(root, synonyms[key])
         except KeyError:
-            try:
-                diatonic_extended_chord = diatonic_thirteenth(root, synonyms_r[key])
-            except:
-                print(f'Problem fetching diatonic_thirteenth({root},{key})')
+            print(f'Problem fetching diatonic_thirteenth({root},{key})')
 
     return diatonic_extended_chord[extension_index[extension]]
 
