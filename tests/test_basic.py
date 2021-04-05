@@ -287,6 +287,25 @@ class MoreStuff(unittest.TestCase):
 
         assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
 
+    def test_get_scale(self):
+
+        from sidewinder.utilities import get_scale as g
+
+        print(g('major', 'E', ascending=False)[-1])
+        print(type(g('major', 'E', ascending=False)[-1]))
+        conds = []
+        conds += [
+                    str(g('major', 'E', name_only=True)[0]) == 'E',
+                    str(g('major', 'E', name_only=True)[1]) == 'F#',
+                    str(g('major', 'E', name_only=True)[2]) == 'G#',
+                    str(g('lydian', 'C', name_only=True)[3]) == 'F#',
+                    str(g('Minor Pentatonic', 'C', name_only=True)[1]) == 'Eb',
+                    str(g('Minor Pentatonic', 'C', name_only=True, ascending=False)[1]) == 'Bb',
+                 ]
+
+        for cond in conds:
+            assert cond
+
     def test_detect_all_251s(self):
 
         assert True

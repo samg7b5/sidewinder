@@ -14,7 +14,7 @@ def get_scale_patterns(chosen_scale='Ionian', p=[1,3,5,7], keys=['C'], descendin
     '''
     patterns = OrderedDict()
     for i, key in enumerate(keys):
-        scale = get_scale(chosen_scale, key).ascending()[:-1]
+        scale = get_scale(chosen_scale, key, ascending=(not descending))
         patterns[key] = []
         if descending:
             for j, starting_note in enumerate(scale):

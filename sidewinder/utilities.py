@@ -140,18 +140,109 @@ def progression_to_chords(progression, prog_type='shorthand'):
         chords_ = [progressions.to_chords(chord)[0] for chord in progression]
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
-def get_scale(scale_class_name, key, help=False):
+def get_scale(scale_class_name, key, ascending=True, length=None, name_only=False, help=False):
+
+    # optional return as chromatic degree description?
 
     NON_SCALE_CLASSES = ['TemporalNote', '__name__', '__builtins__', 'get_notes', 'RangeError', '_Scale', 'intervals', '__package__', 'keys', '__loader__', 'augment', '__spec__', 'diminish', 'BLUES_INTERVALS', 'determine', 'NoteFormatError', '__cached__', 'FormatError', 'reduce_accidentals', '__doc__', '__file__', 'cycle']
     NON_SCALE_CLASSES += ['Bachian', 'Diatonic']
     SCALE_TYPES = list(set(dir(scales)) - set(NON_SCALE_CLASSES))
     if help:
         print('scale_class_name should be one of: ', SCALE_TYPES)
+        return None
+
+    scale_class_name = scale_class_name.lower().replace(' ','').replace('-','')
+
+    scale_synonyms = {'altered':'superlocrian',
+                      'altereddominant':'superlocrian',
+                      'majorpentatonic':'pentatonic',
+                      'suhmmlydian':'superultrahypermegametalydian',
+                      'suhmmmixolydian':'superultrahypermegametamixolydian',
+                      }
+    try:
+        scale_class_name = scale_synonyms[scale_class_name]
+    except KeyError:
+        pass
         
-    # TODO see lick_analytics scale_gens
+    scale_gens= {'major': scales.Major,
+             'minor': scales.NaturalMinor,
+             'lydian': scales.Lydian,
+             'ionian': scales.Ionian, # same as major
+             'mixolydian':scales.Mixolydian,
+             'dorian':scales.Dorian,
+             'aeolian':scales.Aeolian,
+             'phrygian':scales.Phrygian,
+             'locrian':scales.Locrian,
+             'whole tone': scales.WholeTone,
+             'blues':scales.Blues,
+             'chromatic':scales.Chromatic,
+             'diatonic':scales.Diatonic, # same as major/ionian, different class definition (uses W/H steps)
+             'naturalminor':scales.NaturalMinor, # same as minor/Aeolian
+             'harmonicminor':scales.HarmonicMinor,
+             'melodicminor':scales.MelodicMinor,
+             'octatonic':scales.Octatonic, # WH diminished
+             'minorneapolitan':scales.MinorNeapolitan,
+             'diminished':scales.Octatonic,
+             'wholehalfdiminished':scales.Octatonic,
+             'halfwholediminished':scales.HalfWholeDiminished,
+             'locriannat6': scales.LocrianNat6,
+             'ionian#5': scales.IonianSharp5,
+             'ionianaugmented': scales.IonianSharp5,
+             'dorian#4': scales.DorianSharp4,
+             'phrygiandominant': scales.PhrygianDominant,
+             'lydian#2': scales.LydianSharp2,
+             'altereddominantbb7': scales.AlteredDominantbb7,
+             'superlocrianbb7': scales.AlteredDominantbb7,
+             'dorianb2': scales.Dorianb2,
+             'phrygiannat6': scales.Dorianb2,
+             'lydian#5': scales.LydianSharp5,
+             'lydianaugmented': scales.LydianSharp5,
+             'lydiandominant': scales.LydianDominant,
+             'mixolydianb6': scales.Mixolydianb6,
+             'locriannat2': scales.LocrianNat2,
+             'superlocrian': scales.AlteredDominant,
+             'pentatonic': scales.Pentatonic,
+             'minorpentatonic': scales.MinorPentatonic,
+             'majorbebop':scales.MajorBebop,
+             'dorianbebop':scales.DorianBebop,
+             'altdorian bebop':scales.DorianBebopAlt, # "alternative" (not "altered")
+             'mixolydianbebop':scales.MixolydianBebop,
+             'dominantbebop':scales.MixolydianBebop,
+             'melodicminor bebop':scales.MelodicMinorBebop,
+             'harmonicminorbebop':scales.HarmonicMinorBebop,
+             'superultrahypermegametalydian': scales.SuperUltraHyperMegaMetaLydian, 
+             'superultrahypermegametamixolydian': scales.SuperUltraHyperMegaMetaMixolydian, 
+             }   
 
+    # if different to the standard 7 note (plus octave) scale
+    scale_lengths= {'octatonic':8,
+                    'diminished':8,
+                    'wholehalfdiminished':8,
+                    'halfwholediminished':8,
+                    'wholetone':6,
+                    'pentatonic':5,
+                    'minorpentatonic':5,
+                    'blues': 6,
+                    'chromatic':12,
+                    'majorbebop':8,
+                    'dorianbebop':8,
+                    'altdorianbebop':8, 
+                    'mixolydianbebop':8,
+                    'dominantbebop':8,
+                    'melodicminorbebop':8,
+                    'harmonicminorbebop':8
+                    }
+    if length is None:
+        try:
+            length = scale_lengths[scale_class_name]
+        except KeyError:
+            length = 7
 
-    return eval(f"scales.{scale_class_name}(\'{key}\')")  # alternatively see https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
+    out = list(scale_gens[scale_class_name](key).generate(length, ascending=ascending))
+    if name_only:
+        out = [note.name for note in out]
+    return out
+
 
 def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major'):
     '''
