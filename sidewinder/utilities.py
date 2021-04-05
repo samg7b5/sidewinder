@@ -243,6 +243,55 @@ def get_scale(scale_class_name, key='C', ascending=True, length=None, name_only=
         out = [note.name for note in out]
     return out
 
+def note_to_scale_degree(note, key, scale, label_nondiatonic=True, chromatic_options=False): # note as str for simplicity e.g. note.name
+    
+    if type(note) == Note:
+        note = note.name
+
+    chromatic_scale_degrees = [['1'],
+                           ['b9','b2'], 
+                           ['9','2'], 
+                           ['b3','#9'], 
+                           ['3'], 
+                           ['4','11'], 
+                           ['#11','#4','b5'],
+                           ['5'],
+                           ['b6','#5','b13'],
+                           ['6','13'],
+                           ['b7'],
+                           ['7']]
+
+    scale_notes = get_scale(scale, key=key, name_only=True)
+    
+    # double accidental correction 
+    try: 
+        note = malformed_double_accidentals[note] # these examples wouldn't work in the chr(ord()) code below
+    except KeyError:
+        pass 
+    if '##' in note:
+            note = chr(ord(note[0])+1)
+    if 'bb' in note:
+            note = chr(ord(note[0])-1)
+    
+    try:
+        scale_idx = scale_notes.index(note)
+    except ValueError:
+        try: 
+            scale_idx = scale_notes.index(synonyms[note])
+        except (KeyError, ValueError):
+            if label_nondiatonic:
+                return (False, note_to_scale_degree(note, key, 'chromatic', chromatic_options=chromatic_options)) # not in scale
+            else:
+                return False
+    
+    if scale == 'chromatic':
+        if chromatic_options:
+            return chromatic_scale_degrees[scale_idx]
+        else:
+            return chromatic_scale_degrees[scale_idx][0]
+        
+    else:
+        return scale_idx + 1 # e.g. output of 7 means this is the 7th (major or minor) diatonic to the given scale 
 
 def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major'):
     '''
