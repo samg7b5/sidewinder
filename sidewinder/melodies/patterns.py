@@ -9,17 +9,18 @@ def scale_pattern(scale, p=[1,3,5,7], offset=0):
     '''
     return [scale[(idx+offset-1) % len(scale)] for idx in p]
 
-def get_scale_patterns(chosen_scale='Ionian', p=[1,3,5,7], keys=['C'], descending=False):
+def get_scale_patterns(chosen_scale='Ionian', p=[1,3,5,7], keys=['C'], descending=False, name_only=False):
     ''' note: will probably only work for the main modes and not alternative length / alternatively-spaced scales like pentatonics etc.
     '''
     patterns = OrderedDict()
+    scale_length = len(get_scale(chosen_scale))
     for i, key in enumerate(keys):
-        scale = get_scale(chosen_scale, key, ascending=(not descending))
+        scale = get_scale(chosen_scale, key, length=100, name_only=name_only) # length is for correctly numbering patterns which go too high
         patterns[key] = []
         if descending:
-            for j, starting_note in enumerate(scale):
-                patterns[key].append(scale_pattern(scale, p, offset=len(scale)-j))
+            for j, starting_note in enumerate(scale[:scale_length]):
+                patterns[key].append(scale_pattern(scale, p, offset=scale_length-j))
         else:
-            for j, starting_note in enumerate(scale):
+            for j, starting_note in enumerate(scale[:scale_length]):
                 patterns[key].append(scale_pattern(scale, p, offset=j))
     return patterns

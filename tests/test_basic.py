@@ -275,7 +275,7 @@ class MoreStuff(unittest.TestCase):
         from sidewinder.utilities import cycle_of_fifths
         from sidewinder.melodies.patterns import get_scale_patterns
 
-        patterns = get_scale_patterns('Major', p=[1,3,5], keys=cycle_of_fifths(start='D')) # returns ascending scale patterns
+        patterns = get_scale_patterns('Major', p=[1,3,5], keys=cycle_of_fifths(start='D'), name_only=True) # returns ascending scale patterns
         keys = [k for k,v in patterns.items()]
   
         cond1 = (patterns[keys[0]][0][0] == 'D')
@@ -291,8 +291,8 @@ class MoreStuff(unittest.TestCase):
 
         from sidewinder.utilities import get_scale as g
 
-        print(g('major', 'E', ascending=False)[-1])
-        print(type(g('major', 'E', ascending=False)[-1]))
+        # print(g('major', 'E', ascending=False)[-1])
+        # print(type(g('major', 'E', ascending=False)[-1]))
         conds = []
         conds += [
                     str(g('major', 'E', name_only=True)[0]) == 'E',

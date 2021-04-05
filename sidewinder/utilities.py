@@ -140,7 +140,7 @@ def progression_to_chords(progression, prog_type='shorthand'):
         chords_ = [progressions.to_chords(chord)[0] for chord in progression]
     return chords_ #a list of lists [['C', 'E', 'G', 'B'],...]
 
-def get_scale(scale_class_name, key, ascending=True, length=None, name_only=False, help=False):
+def get_scale(scale_class_name, key='C', ascending=True, length=None, name_only=False, help=False):
 
     # optional return as chromatic degree description?
 

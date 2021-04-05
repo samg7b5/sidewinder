@@ -6,86 +6,11 @@ Temporary structure for functions to process and analyse licks (melodic lines)
 
 @author: Sam
 """
-from utilities import synonyms, synonyms_r
-synonyms.update(synonyms_r)
-
-malformed_double_accidentals = {'B##':'C#',
-                                'E##':'F#',
-                                'Cbb':'Bb',
-                                'Fbb':'Eb'}
+from utilities import synonyms
 
 import mingus.core.scales as scales
 
-scale_gens= {'major': scales.Major,
-             'minor': scales.NaturalMinor,
-             'lydian': scales.Lydian,
-             'ionian': scales.Ionian, # same as major
-             'mixolydian':scales.Mixolydian,
-             'dorian':scales.Dorian,
-             'aeolian':scales.Aeolian,
-             'phrygian':scales.Phrygian,
-             'locrian':scales.Locrian,
-             'whole tone': scales.WholeTone,
-             'blues':scales.Blues,
-             'chromatic':scales.Chromatic,
-             'diatonic':scales.Diatonic, # same as major/ionian, different class definition (uses W/H steps)
-             'natural minor':scales.NaturalMinor, # same as minor/Aeolian
-             'harmonic minor':scales.HarmonicMinor,
-             'melodic minor':scales.MelodicMinor,
-             'octatonic':scales.Octatonic, # WH diminished
-             'minor neapolitan':scales.MinorNeapolitan,
-             'diminished':scales.Octatonic,
-             'whole-half diminished':scales.Octatonic,
-             'half-whole diminished':scales.HalfWholeDiminished,
-             'locrian nat6': scales.LocrianNat6,
-             'ionian #5': scales.IonianSharp5,
-             'ionian augmented': scales.IonianSharp5,
-             'dorian #4': scales.DorianSharp4,
-             'phrygian dominant': scales.PhrygianDominant,
-             'lydian #2': scales.LydianSharp2,
-             'altered dominant bb7': scales.AlteredDominantbb7,
-             'superlocrian bb7': scales.AlteredDominantbb7,
-             'dorian b2': scales.Dorianb2,
-             'phrygian nat6': scales.Dorianb2,
-             'lydian #5': scales.LydianSharp5,
-             'lydian augmented': scales.LydianSharp5,
-             'lydian dominant': scales.LydianDominant,
-             'mixolydian b6': scales.Mixolydianb6,
-             'locrian nat2': scales.LocrianNat2,
-             'superlocrian': scales.AlteredDominant,
-             'altered': scales.AlteredDominant,
-             'altered dominant': scales.AlteredDominant,
-             'pentatonic': scales.Pentatonic,
-             'minor pentatonic': scales.MinorPentatonic,
-             'major bebop':scales.MajorBebop,
-             'dorian bebop':scales.DorianBebop,
-             'alt dorian bebop':scales.DorianBebopAlt, # "alternative" (not "altered")
-             'mixolydian bebop':scales.MixolydianBebop,
-             'dominant bebop':scales.MixolydianBebop,
-             'melodic minor bebop':scales.MelodicMinorBebop,
-             'harmonic minor bebop':scales.HarmonicMinorBebop,
-             'super-ultra-hyper-mega-meta-lydian': scales.SuperUltraHyperMegaMetaLydian, # no generate() method
-             'super-ultra-hyper-mega-meta-mixolydian': scales.SuperUltraHyperMegaMetaMixolydian # no generate() method
-             }   
 
-# if different to the standard 7 note (plus octave) scale
-scale_lengths= {'octatonic':8,
-                'diminished':8,
-                'whole-half diminished':8,
-                'half-whole diminished':8,
-                'whole tone':6,
-                'pentatonic':5,
-                'minor pentatonic':5,
-                'blues': 6,
-                'chromatic':12,
-                'major bebop':8,
-                'dorian bebop':8,
-                'alt dorian bebop':8, 
-                'mixolydian bebop':8,
-                'dominant bebop':8,
-                'melodic minor bebop':8,
-                'harmonic minor bebop':8
-                }
 
 chromatic_scale_degrees = [['1'],
                            ['b9','b2'], 
@@ -102,12 +27,7 @@ chromatic_scale_degrees = [['1'],
                            
 def note_to_scale_degree(note, key, scale, label_nondiatonic=True, chromatic_options=False): # note as str for simplicity e.g. note.name
     # get scale
-    scale = scale.lower() # input sanitisation 
-    try:
-        scale_length = scale_lengths[scale]
-    except KeyError:
-        scale_length = 7
-    scale_notes = list(scale_gens[scale](key).generate(scale_length))
+    scale = get_scale(scale)
     
     # double accidental correction 
     try: 
