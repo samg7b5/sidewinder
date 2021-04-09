@@ -24,6 +24,7 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
         voiced_semitones = rootless_voice(chord, **kwargs)
 
     if voiced_semitones is None:
+        print(f'voicing_type {voicing_type} returned None for chord {chord}')
         voiced_semitones = default_voice(chord)
 
     # TO-DO: add_bass_note_to_slash_chord() (e.g. C7/E -> put an E in the bass)
@@ -147,12 +148,14 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
 
     # specify recipes for the different chord types in terms of diatonic scale degrees (e.g. 3 in m7 is a minor 3rd)
     recipes_A = {'M7': [3,5,7,9],
+                'M6': [3,6,7,9],
                '7': [7,9,3,13],
                'm7': [3,5,7,9]}
 
     recipes_B = {'M7': [6,9,3,5],
                '7': [3,13,7,9],
                'm7': [7,9,3,5]}
+    recipes_B['M6'] = recipes_B['M7']
     
     if type == 'B':
         recipes = recipes_B
@@ -164,7 +167,7 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
         recipes[ct] = recipes['m7']
     for ct in ['M9','M13']:
         recipes[ct] = recipes['M7']
-    for ct in ['9','11','13']:
+    for ct in ['9','11','13','7b9']:
         recipes[ct] = recipes['7']
 
     # apply recipes
@@ -173,7 +176,7 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
     try:
         recipe = recipes[chord_type]
     except KeyError:
-        print(f'No voicing recipe specified for chord: {chord}')    
+        print(f'No rootless voicing recipe specified for chord: {chord}')    
         return None # acts as flag to parent function        
     for extension in recipe:
         voiced_chord.append(get_diatonic_upper_chord_extension(chord, extension, key=key, mode=mode))

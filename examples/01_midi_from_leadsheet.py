@@ -1,17 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec 30 19:38:09 2019
-
-@author: Sam
-"""
 from sidewinder import Chart
 from sidewinder.voicings.voicings import voice_chords
 from sidewinder.voicings.voice_leading import smooth_voice_leading
 from sidewinder.melodies.basslines import create_walking_bassline
 from sidewinder.utilities import notes_durations_to_track, track_to_midi
 from mingus import *
-
-#%% Playing with progressions and standards
+from mingus.containers import Note
 
 # 1. Numerals -> midi
 misty = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
@@ -55,17 +48,3 @@ print(gsChart.get_numeral_representation(key='Ab'))
 
 smooth_voiced_chords = smooth_voice_leading(voice_chords(gsChart.progressionShorthandList))
 track_to_midi(notes_durations_to_track(smooth_voiced_chords, gsChart.durations), name='midi_out\\giant-steps_smooth-voice-leading_example', timestamp=False)
-
-
-#%% Developing melodic repertoire with LickLibrary
-
-## Importing jazz licks from midi into the library
-#### see LickLibrary.py (should be moved here in future)
-
-#y_Obj = JazzLick(source=y_comp, chords=y_chords, tags=['251', 'major', 'jiminpark'])
-
-
-#%% Generative
-
-# e.g. generate scale degree patterns across any scale (like 7 1 3 5 7 on all modes, for ex) - cf LickAnalytics.py
-
