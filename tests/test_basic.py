@@ -306,13 +306,68 @@ class MoreStuff(unittest.TestCase):
         for cond in conds:
             assert cond
 
+    def test_get_scale_patterns(self):
+
+        from sidewinder.melodies.patterns import get_scale_patterns as g
+        from sidewinder.utilities import cycle_of_fifths
+        from mingus.core.notes import reduce_accidentals
+
+        asc = [1,3,5,7,4,11,8]
+        target = ['C','E','G','B','F#','F#','C']
+        result = g('lydian', p=asc, keys=cycle_of_fifths('C'))['C']
+
+        conds = [ result[0][i].name == target[i] for i,_ in enumerate(target)
+                ]
+
+        target = ['D','F','G#','C','F#','F#','D']
+        result = g('altered', p=asc, keys=['D'])['D']
+        #print([reduce_accidentals(result[0][i].name) for i,_ in enumerate(target)])
+
+        conds += [ reduce_accidentals(result[0][i].name) == target[i] for i,_ in enumerate(target)
+                ]
+        conds += [ result[0][4].octave == result[0][5].octave - 1]
+        
+        for cond in conds:
+         #   print(cond)
+            assert cond
+
+    def test_note_to_scale_degree(self):
+
+        from sidewinder.utilities import note_to_scale_degree as n
+
+        conds = []
+        conds += [
+                n('C', 'C', 'major') == 1,
+                n('G', 'C', 'major') == 5,
+                n('Bb', 'C', 'mixolydian') == 7,
+                n('F','G','Dorian') == 7,
+                n('Db','C','chromatic') == 'b9',
+                n('C#','C','chromatic') == 'b9',
+        ]
+        
+        for cond in conds:
+            #print(cond)
+            assert cond
+        
     def test_detect_all_251s(self):
 
-        assert True
+        conds = []
+        conds += [
+                
+        ]
+        
+        for cond in conds:
+            assert cond
 
     def test_shell_voicing(self):
 
-        assert True
+        conds = []
+        conds += [
+                
+        ]
+        
+        for cond in conds:
+            assert cond
 
 
 if __name__ == '__main__':
