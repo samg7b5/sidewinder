@@ -369,6 +369,11 @@ class MoreStuff(unittest.TestCase):
         for cond in conds:
             assert cond
 
+class LicksOverChords(unittest.TestCase):
+    """Compose a melodic line, using pre-defined licks and other methods, to accompany given chords"""
+
+    def test_absolute_truth_and_meaning(self):
+        assert True
 
 if __name__ == '__main__':
     unittest.main()
