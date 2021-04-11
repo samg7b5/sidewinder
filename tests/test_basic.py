@@ -125,7 +125,7 @@ class AddingDurationsToProgressions(unittest.TestCase):
         mistyChart.set_durations(durations=self.misty_durs[:2])
         assert self.misty_durs[:2] == mistyChart.durations[:2]
 
-class BasicVoicingHandling(unittest.TestCase):
+class BasicVoicingMidiHandling(unittest.TestCase):
     """Tests to drive work on refactor-core 28/03/21 (creating a Chart object to replicate monolithic examples of chords_to_midi(), chords_to_bassline_midi())
     Specifically handling of basic 'vertical' (e.g. individual rootless) and 'horizontal' (== smooth voice leading, at this stage) voicing """
 
@@ -202,7 +202,7 @@ class BasicVoicingHandling(unittest.TestCase):
         assert track_to_midi(notes_durations_to_track(voiced_chords, mistyChart.durations), name='midi_out\\smooth_voice_test_default', timestamp=False) is not None
 
     def test_generate_midi_from_shorthands_and_durations_in_3_4(self):
-
+        print('test_generate_midi_from_shorthands_and_duration_in_3_4 not implemented!')
         assert True
 
     def test_generate_simple_bassline_midi(self):
@@ -225,16 +225,154 @@ class BasicVoicingHandling(unittest.TestCase):
 
         assert track_to_midi(bassline_track, name='midi_out\\walking_bassline_test', timestamp=False) is not None
 
-    def test_generate_1351_exercise_for_given_scale(self):
+class ScalePatternGeneration(unittest.TestCase):
+    """02/04 
+    - Shell voicing
+    - 1351 chord exercises
+    - pattern detection
+    """
 
-        assert True
+    misty_numerals = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, bVII9, IM7, \
+    v-7, I7b9, IVM7, IVM7,\
+    bv-7, VII7, II7, iii-7, VI7b9, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, I6'
 
+    misty_key = 'C'
+
+    misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 
+            1, 1, 1, 1, 
+            1, 2, 2, 2, 2, 2, 2, 
+            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
+
+    def test_better_extension_from_chord_function(self):
+
+        from sidewinder.utilities import get_diatonic_upper_chord_extension as f
+        cond1 = (f('D7',3) == 'F#')
+        cond2 = (f('D7',7) == 'C')
+        cond2 = (f('D7',9) == 'E')
+        cond3 = (f('CM6',6) == 'A')
+        cond4 = (f('GM13',13) == 'E')
+        cond5 = (f('C7b9',9) == 'Db')
+        cond6 = (f('C7b9',13) == 'Ab') # f assumes a 7b9 is a harmonic minor V7 (e.g. C7b9 from F harmonic minor has Ab, Bb, Db)
+
+        assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
+
+    def test_generate_135arp_for_each_major_scale_ascending_chord_around_cycle_of_fifths(self):
+        '''
+        D  F#  A
+          E  G  B
+            F# A C#
+              ...
+        
+        A  C#  E
+          B  D  F#
+
+        etc.
+        '''
+
+        from sidewinder.utilities import cycle_of_fifths
+        from sidewinder.melodies.patterns import get_scale_patterns
+
+        patterns = get_scale_patterns('Major', p=[1,3,5], keys=cycle_of_fifths(start='D'), name_only=True) # returns ascending scale patterns
+        keys = [k for k,v in patterns.items()]
+  
+        cond1 = (patterns[keys[0]][0][0] == 'D')
+        cond2 = (patterns[keys[0]][0][1] == 'F#')
+        cond3 = (patterns[keys[0]][0][2] == 'A')
+        cond4 = (patterns[keys[1]][1][0] == 'B')
+        cond5 = (patterns[keys[2]][1][1] == 'A') # E -> F# -> A as m3
+        cond6 = (patterns[keys[3]][2][2] == 'A#') # B -> D# -> A# as 5th
+
+        assert (cond1 & cond2 & cond3 & cond4 & cond5 & cond6)
+
+    def test_get_scale(self):
+
+        from sidewinder.utilities import get_scale as g
+
+        # print(g('major', 'E', ascending=False)[-1])
+        # print(type(g('major', 'E', ascending=False)[-1]))
+        conds = []
+        conds += [
+                    str(g('major', 'E', name_only=True)[0]) == 'E',
+                    str(g('major', 'E', name_only=True)[1]) == 'F#',
+                    str(g('major', 'E', name_only=True)[2]) == 'G#',
+                    str(g('lydian', 'C', name_only=True)[3]) == 'F#',
+                    str(g('Minor Pentatonic', 'C', name_only=True)[1]) == 'Eb',
+                    str(g('Minor Pentatonic', 'C', name_only=True, ascending=False)[1]) == 'Bb',
+                 ]
+
+        for cond in conds:
+            assert cond
+
+    def test_get_scale_patterns(self):
+
+        from sidewinder.melodies.patterns import get_scale_patterns as g
+        from sidewinder.utilities import cycle_of_fifths
+        from mingus.core.notes import reduce_accidentals
+
+        asc = [1,3,5,7,4,11,8]
+        target = ['C','E','G','B','F#','F#','C']
+        result = g('lydian', p=asc, keys=cycle_of_fifths('C'))['C']
+
+        conds = [ result[0][i].name == target[i] for i,_ in enumerate(target)
+                ]
+
+        target = ['D','F','G#','C','F#','F#','D']
+        result = g('altered', p=asc, keys=['D'])['D']
+        #print([reduce_accidentals(result[0][i].name) for i,_ in enumerate(target)])
+
+        conds += [ reduce_accidentals(result[0][i].name) == target[i] for i,_ in enumerate(target)
+                ]
+        conds += [ result[0][4].octave == result[0][5].octave - 1]
+        
+        for cond in conds:
+         #   print(cond)
+            assert cond
+
+    def test_note_to_scale_degree(self):
+
+        from sidewinder.utilities import note_to_scale_degree as n
+
+        conds = []
+        conds += [
+                n('C', 'C', 'major') == 1,
+                n('G', 'C', 'major') == 5,
+                n('Bb', 'C', 'mixolydian') == 7,
+                n('F','G','Dorian') == 7,
+                n('Db','C','chromatic') == 'b9',
+                n('C#','C','chromatic') == 'b9',
+        ]
+        
+        for cond in conds:
+            #print(cond)
+            assert cond
+        
     def test_detect_all_251s(self):
 
-        assert True
+        conds = []
+        conds += [
+                
+        ]
+        
+        for cond in conds:
+            assert cond
 
     def test_shell_voicing(self):
 
+        conds = []
+        conds += [
+                
+        ]
+        
+        for cond in conds:
+            assert cond
+
+class LicksOverChords(unittest.TestCase):
+    """Compose a melodic line, using pre-defined licks and other methods, to accompany given chords"""
+
+    def test_absolute_truth_and_meaning(self):
         assert True
 
 

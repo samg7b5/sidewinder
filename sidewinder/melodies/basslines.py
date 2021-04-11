@@ -32,7 +32,7 @@ def create_walking_bassline(_chords, durations=None):
     chords_ = [chord_note_and_family(c) for c in _chords]
 
     variants = ['pedal', 'arp7', 'arp', 'diat', 'chrom', 'dblchrm']
-    variant_weights = [0.5,5,5,2,1,0.5]
+    variant_weights = [.5,5,5,2,.5,.3]
     styles = random.choices(population=variants, weights=variant_weights, k=len(chords_))
     
     bassline = []
@@ -60,8 +60,10 @@ def create_walking_bassline(_chords, durations=None):
                 basspattern = [chord[0], chord[1], chord[2]-1, chord[1]+1] # root, minor 3, flat 5, b11 (leading tone for V/II-7)
             elif 'M' in chords_[i][1]:
                 basspattern = [chord[0], chord[0]+1, chord[0]+2, chord[2]] # root, b9, 2, 5th
-            elif chords_[i][1] == '7':
+            elif chords_[i][1] in ['7','7b9']:
                 basspattern = [chord[0], chord[1], chord[2], chord[0]+1] # root, 3rd, 5th, b9
+            elif chords_[i][1] in ['9']:
+                basspattern = [chord[0],chord[1],chord[0]+2,chord[3]-12] # root, 3rd, 9th, down to b7
             else:
                 print(f'No chromatic basspattern given for chord type {chords_[i][1]}')
         elif style == 'dblchrm':
