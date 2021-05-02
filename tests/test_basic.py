@@ -225,7 +225,7 @@ class BasicVoicingMidiHandling(unittest.TestCase):
 
         assert track_to_midi(bassline_track, name='midi_out\\walking_bassline_test', timestamp=False) is not None
 
-class MoreStuff(unittest.TestCase):
+class ScalePatternGeneration(unittest.TestCase):
     """02/04 
     - Shell voicing
     - 1351 chord exercises

@@ -8,14 +8,16 @@ bspaans/python-mingus is used as a foundation for musical logic and MIDI support
 "Good enough for jazz"
 
 Current features:
-- Analyse jazz chords in terms of shorthand and roman numeral notation
-- Vertical voicings of chords: shell, rootless, etc.
-- Generate midi backing tracks using vertical voicings, voice leading, walking basslines
+- Generate a simple midi backing track when given a leadsheet (chords) (see example 01)
+- Analyse jazz chords in terms of shorthand and roman numeral notation (using mingus)
+- Vertical voicings of chords: basic (in thirds), rootless variations, more to be added (shell, etc.)
+- Horizontal voicings i.e. voice leading
+- Generate melodies and basslines e.g. walking bassline
 - Analyse melody lines in terms of jazz scales (all modes, alterations and more exotic scales are supported)
 
 Upcoming features:
-- More horizontal voicing support
-- Jazz licks library support, to overlay on chord changes for melody composition
+- More horizontal voicing / composition algorithms
+- Jazz licks library - ability to save melodic lines for future use in melody composition
 - Generative methods for improvisation
 - ...
 

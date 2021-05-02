@@ -10,20 +10,38 @@ from sidewinder.utilities import notes_durations_to_track, track_to_midi, cycle_
 from mingus import *
 from mingus.containers import Note
 
+def flatten(myList):
+    if type(myList[0]) == list:
+        return flatten([element for sublist in myList for element in sublist])
+    else:
+        return myList
+
 # 3) Generating scale patterns based on 10 Warmup Exercises Every Jazz Musician Should Know
 #    inspired by Chad LB https://www.youtube.com/watch?v=hOQL9grV7Lw
-#    This example generates midi files for 17 different scale patterns. Most code is data-wrangling of the get_scale_patterns() output...
+#    This example generates midi files for 17 different scale patterns.
 
 # 3.1 1234 shape
+
+# Start by specifying a pattern in terms of "diatonic scale degrees" e.g. 3 over a minor scale will give you a flat 3
 asc = [1,2,3,4,5,4,3,1]
 desc = [1,2,3,4,3,2,1,6]
-desc = [8,9,10,11,10,9,8,6] # actually want to jump down to the 6th, so we should re-write it like this
+desc = [8,9,10,11,10,9,8,6] # in this example we actually want to jump down to the 6th from the 1, so we should re-write up the octave like this
 
+# I'm going to save the results into a dictionary since I'm going to be making more
 exercises = {}
 exercises[0] = None
 exercises[1] = get_scale_patterns('Major', p=asc, keys=cycle_of_fifths()) 
 exercises[2] = get_scale_patterns('Major', p=desc, keys=cycle_of_fifths(), descending=True)
 
+# get_scale_patterns() returns us an OrderedDict so this code is just navigating that structure
+for i in [1,2]:
+    _notes = []
+    for key in list(exercises[i].keys()):
+        _notes += flatten(exercises[i][key])
+    track_to_midi(notes_durations_to_track(_notes, [8]*len(_notes)), name=f'midi_out\\ChadLB_Warmups_{i}', timestamp=False) # save it to midi (I'm putting everything as 8th notes)
+
+
+# Let's do some more... Most of the following code is navigating the OrderedDicts and making ad hoc tweaks to patterns
 
 # 3.2 1234 with chromatic approach
 ## replace the 8th note of each group with a leading tone
@@ -166,7 +184,7 @@ scale = get_scale(scale_choice)
 for note in scale:
     sd = note_to_scale_degree(note, 'C', scale_choice)
     chrom = note_to_scale_degree(note, 'C', 'chromatic')
-    print(f'{sd}: {note.name}, {chrom}') # this tells us what integer to use in get_scale_patterns, and also what chromatic interval it represents
+    # print(f'{sd}: {note.name}, {chrom}') # this tells us what integer to use in get_scale_patterns, and also what chromatic interval it represents
 chrom_to_pattern = {note_to_scale_degree(note, 'C', 'chromatic'): note_to_scale_degree(note, 'C', scale_choice) for note in scale}
 exercises[14] = get_scale_patterns(scale_choice, p=[chrom_to_pattern[c] for c in p], keys=keys)
 exercises[15] = get_scale_patterns(scale_choice, p=[chrom_to_pattern[c] for c in p2], keys=keys, descending=True)
@@ -194,7 +212,7 @@ triad1 = get_scale_patterns(scale_choice, p=triad_notes_norm[triad_pair[0]-1], k
 triad2 = get_scale_patterns(scale_choice, p=triad_notes_norm[triad_pair[1]-1], keys=[key])[key][0]
 triad1_name = determine([n.name for n in triad1])[0]
 triad2_name = determine([n.name for n in triad2])[0]
-print(f'Choices are {triad1_name} and {triad2_name}')
+# print(f'Choices are {triad1_name} and {triad2_name}')
 
 # TODO: generate some triad pair patterns
 
@@ -268,14 +286,8 @@ exercises[19] = new_exercise.copy()
 
 
 # Now let's export our exercises as midi
-to_save = list(set(range(20)) - set([0,8,16]))
+to_save = list(set(range(20)) - set([0,1,2,8,16]))
 saving = True
-
-def flatten(myList):
-    if type(myList[0]) == list:
-        return flatten([element for sublist in myList for element in sublist])
-    else:
-        return myList
 
 if saving:
     for i in to_save:
