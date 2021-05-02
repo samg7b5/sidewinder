@@ -225,7 +225,7 @@ class BasicVoicingMidiHandling(unittest.TestCase):
 
         assert track_to_midi(bassline_track, name='midi_out\\walking_bassline_test', timestamp=False) is not None
 
-class MoreStuff(unittest.TestCase):
+class ScalePatternGeneration(unittest.TestCase):
     """02/04 
     - Shell voicing
     - 1351 chord exercises
@@ -368,6 +368,12 @@ class MoreStuff(unittest.TestCase):
         
         for cond in conds:
             assert cond
+
+class LicksOverChords(unittest.TestCase):
+    """Compose a melodic line, using pre-defined licks and other methods, to accompany given chords"""
+
+    def test_absolute_truth_and_meaning(self):
+        assert True
 
 
 if __name__ == '__main__':
