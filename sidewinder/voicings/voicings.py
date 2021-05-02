@@ -163,7 +163,7 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
         recipes = recipes_A
 
     # extrapolate recipes to other chord types
-    for ct in ['m9','m11','m13']:
+    for ct in ['m9','m11','m13','m7b5']: # does m7b5 fit here?
         recipes[ct] = recipes['m7']
     for ct in ['M9','M13']:
         recipes[ct] = recipes['M7']
