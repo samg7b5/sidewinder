@@ -349,16 +349,6 @@ class ScalePatternGeneration(unittest.TestCase):
             #print(cond)
             assert cond
         
-    def test_detect_all_251s(self):
-
-        conds = []
-        conds += [
-                
-        ]
-        
-        for cond in conds:
-            assert cond
-
     def test_shell_voicing(self):
 
         conds = []
@@ -372,8 +362,61 @@ class ScalePatternGeneration(unittest.TestCase):
 class LicksOverChords(unittest.TestCase):
     """Compose a melodic line, using pre-defined licks and other methods, to accompany given chords"""
 
-    def test_absolute_truth_and_meaning(self):
-        assert True
+    misty_numerals = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, bVII9, IM7, \
+    v-7, I7b9, IVM7, IVM7,\
+    bv-7, VII7, II7, iii-7, VI7b9, ii-7, V7, \
+    IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, I6'
+
+    misty_key = 'F'
+
+    def test_import_frescobaldi_midi(self):
+
+        test_files = []
+        for file in test_files:
+            # MIDI_to_Composition(file)
+            # check known rhythms and pitches e.g. using a reference dict defined pre-loop
+            ...
+
+    def test_generate_and_save_midi_import_midi(self):
+        ...
+
+
+    def test_detect_all_251s(self):
+        
+        from sidewinder import detect_numeral_pattern
+        
+        # mistyChart = sidewinder.Chart(progression=self.misty_numerals, key=self.misty_key)
+        shorthand_string = 'FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, Am7, D7, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, Eb9, FM7, Cm7, F7b9, BbM7, BbM7, Cbm7, E7, G7, Am7, D7b9, Gm7, C7, FM7, Cm7, F7, BbM7, Bbm9, Eb7, FM7, Dm7, Gm7, C7, FM6, FM6'
+        mistyChart = sidewinder.Chart(progression=shorthand_string, key=self.misty_key) # in F
+        numerals = mistyChart.get_numeral_representation(key=mistyChart.key)
+        
+        twofiveone = ['IIm7','V7','IM7']
+        two_five_ones = detect_numeral_pattern(numerals, pattern=twofiveone, transposing='True', original_key=mistyChart.key)
+
+        # original key results
+        chords_ = [c.replace(' ','') for c in shorthand_string.split(',')]
+        expect = [idx for idx, equal in enumerate([(i,j,k)==('Gm7','C7','FM7') for i,j,k in zip(chords_,chords_[1:],chords_[2:])]) if equal]
+        found = [hit['start_index'] for hit in two_five_ones['hits']]
+        assert expect == found
+        
+        # transposed results
+        expect_transposed = [(1, 'Bb'), (15, 'Bb'), (39, 'Bb')]
+        found_transposed = [(hit['start_index'], hit['key']) for hit in two_five_ones['transposed_hits']]
+        assert expect_transposed == found_transposed
+
+    def test_suggested_db_lick_has_correct_chords_and_durations(self):
+        ... # see example 03
+
+
+    def test_get_scale_choices_over_key_and_numeral_chord(self):
+        # e.g. iii chord assume Phrygian e.g. Am7 in F - A Bb C D E F G . Also see get_diatonic_upper_extensions
+        key, chord = ('F', 'iiim7') # should return ['A phrygian', ]
+        ...
+
+    def test_get_scale_choices_over_chord_shorthand(self):
+        # less contextual info so make assumptions 
+        ...
 
 if __name__ == '__main__':
     unittest.main()

@@ -76,23 +76,26 @@ class Chart():
 def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing=True, original_key='C'):
     '''
     Input progression should be in numeral format
-    Transposing option is to detect the pattern outside of the base key
+    pattern is the target chunk to find
+    Transposing option is to detect the pattern outside of the original key
     '''
-    # REFACTORING: PROGRESSION logic
     progression = utilities.parse_progression(progression)
     pattern = utilities.parse_progression(pattern)
-    
-    # REFACTORING: looks like we can keep the rest of the code as a detect_numeral_pattern Progression method 
     window_size = len(pattern)
+
+    if pattern == utilities.parse_progression(['IIm7','V7','IM7']):
+        print('sidewinder.detect_numeral_pattern: did you also want to look for [IIm7,V7,IM6] ?')
     
-    hits = []
+    out = {
+            'hits':[],
+            'transposed_hits':[],
+          }
     for i in range(0, len(progression)-window_size+1):
         passage = progression[i:i+window_size]
         if passage == pattern:
-            hits.append(i)
+            out['hits'].append({'start_index':i,'chords':[chord.replace('dom','') for chord in passage],'key':original_key})
             
     if transposing:
-        transposed_hits = []
         for i in range(0, len(progression)-window_size+1):
             passage = progression[i:i+window_size]
  
@@ -100,9 +103,8 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
                 transposed_passage = progressions.to_chords(passage, original_key)
                 transposed_pattern = progressions.to_chords(pattern, key)
                 
-                if transposed_passage == transposed_pattern:
-                    transposed_hits.append((i,[chord.replace('dom','') for chord in passage],key))
-        hits = [hits, transposed_hits]
+                if transposed_passage == transposed_pattern and not key == original_key:
+                    out['transposed_hits'].append({'start_index':i,'chords':[chord.replace('dom','') for chord in passage],'key':key})
         
-    return hits
+    return out
         
