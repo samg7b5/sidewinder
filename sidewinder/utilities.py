@@ -313,6 +313,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
         # More details:
         # if key is not specified, then default to the most conventional extensions for a given chord type (https://en.wikipedia.org/wiki/Extended_chord#Chord_structure 
         # Note: Would this be different in a different mode/tonality (e.g. extend me a IV chord while playing a locrian tune...)? Should probably factor this in... (TO-DO)
+        # See also https://www.reddit.com/r/musictheory/comments/8becrf/when_to_apply_which_chord_extension/
 
             # M7 -> M13 (M7, 9, #11*, 13) *by convention
             # m7 -> m13 (m7, 9, 11, 13)
@@ -382,6 +383,12 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
     return diatonic_extended_chord[extension_index[extension]]
 
 #%% Tracks / MIDI
+
+def track_to_degrees(track, key, scale, **kwargs):
+    notes = [notev[2] for notev in track.get_notes()] # gives a list of NoteContainers
+    note_names = [[note.name for note in nc] for nc in notes] # since each nc could contain multiple Note()'s
+    return [[note_to_scale_degree(x, key, scale, **kwargs) for x in nc] for nc in note_names]
+
 
 def notes_durations_to_track(_notes, durations=None):
     '''
