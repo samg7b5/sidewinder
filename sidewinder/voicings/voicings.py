@@ -141,6 +141,7 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
     - key (e.g. 'C') is used to determine flavours of extensions. 
         For example, a Dm7 in C (ii7) would extend to a Dm13 (with a G natural), while an Am7 in C (vi7) would extend to an Am11b13 (G natural)
         If key is None then we can still make assumptions about alterations because (for example) if we get a 13 we know it is from a dom7 and is a natural 13
+        See utilities.get_diatonic_upper_chord_extension()
     - use type == 'A' or 'B', or if None then use randomness? Or pick one.
     
     
@@ -163,7 +164,7 @@ def rootless_voice(chord:str, key=None, type=None, mode='major'):
         recipes = recipes_A
 
     # extrapolate recipes to other chord types
-    for ct in ['m9','m11','m13']:
+    for ct in ['m9','m11','m13','m7b5']: # does m7b5 fit here?
         recipes[ct] = recipes['m7']
     for ct in ['M9','M13']:
         recipes[ct] = recipes['M7']

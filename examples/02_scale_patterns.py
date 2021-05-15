@@ -33,8 +33,11 @@ exercises[0] = None
 exercises[1] = get_scale_patterns('Major', p=asc, keys=cycle_of_fifths()) 
 exercises[2] = get_scale_patterns('Major', p=desc, keys=cycle_of_fifths(), descending=True)
 
+# get_scale_patterns() returns us an OrderedDict so this code is just navigating that structure
 for i in [1,2]:
-    _notes = [flatten(exercises[i][key]) for key in list(exercises[i].keys())] # get_scale_patterns() returns us an OrderedDict so this code is just navigating that structure
+    _notes = []
+    for key in list(exercises[i].keys()):
+        _notes += flatten(exercises[i][key])
     track_to_midi(notes_durations_to_track(_notes, [8]*len(_notes)), name=f'midi_out\\ChadLB_Warmups_{i}', timestamp=False) # save it to midi (I'm putting everything as 8th notes)
 
 
