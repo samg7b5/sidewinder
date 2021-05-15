@@ -80,3 +80,5 @@ ENV/
 
 scratch.py
 .vscode/settings.json
+**/.vscode/
+**/.vscode/*
