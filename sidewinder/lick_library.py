@@ -122,8 +122,12 @@ def get_all_chord_respellings(chord):
                 respellings.append(respelling)
     return respellings
 
-def respell_and_determine(chord):
-    named_chords = [chords.determine(chord)]
+def respell_and_determine(chord, shorthand=False):
+    try:
+        named_chords = [chords.determine(chord, shorthand=shorthand)]
+    except TypeError:
+        chord = [note.name for note in chord]
+        named_chords = [chords.determine(chord, shorthand=shorthand)]
     if len(named_chords[0]) == 0:
         named_chords = []
     
@@ -134,8 +138,8 @@ def respell_and_determine(chord):
             respelling = chord.copy()
             for to_syn in comb:
                 respelling[respelling.index(to_syn)] = synonyms[to_syn]
-                if chords.determine(respelling) != []:
-                    named_chords.append(chords.determine(respelling))
+                if chords.determine(respelling, shorthand=shorthand) != []:
+                    named_chords.append(chords.determine(respelling, shorthand=shorthand))
     return named_chords
 
 def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durations=False, debug=False):

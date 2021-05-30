@@ -58,9 +58,14 @@ class Chart():
                 self.progressionShorthandList = utilities.parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
             self.progressionShorthandTuplesList = [chords.chord_note_and_family(chord) for chord in self.progressionShorthandList] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
 
+    def __repr__(self):
+        return ', '.join(self.get_numeral_representation())
+
     def get_numeral_representation(self, key=None):
         if key is None: 
             key = self.key # https://stackoverflow.com/questions/1802971/nameerror-name-self-is-not-defined
+            if key is None:
+                key = 'C'
         return shorthand_list_to_numerals_list(self.progressionShorthandList, key=key)
 
     def set_durations(self, durations=None):
