@@ -84,8 +84,7 @@ def numerals_list_to_shorthand_list(numerals, key='C'):
         '''
         Convert numerals (e.g. ['IIm7', 'V7', 'IM7']) to shorthand (e.g. ['Dm7', 'Gdom7', 'CM7']) with optional choice of key (default is C)
         '''
-        if isinstance(numerals, str):
-            raise TypeError('Did you mean utilities.parse_progression(numerals)?')
+        numerals = parse_progression(numerals)
         try:
             chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
         except NoteFormatError:
