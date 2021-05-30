@@ -67,7 +67,7 @@ def parse_symbol(symbol):
         - mingus progressions.to_chords() uses classical approach V7 = diatonic 7th, hence the 'dom' replacements
 
     '''
-    return symbol.replace(' ','').replace('-','m').replace('maj','M').replace('Maj','M').replace('i','I').replace('v','V').replace('I7','Idom7').replace('V7','Vdom7').replace('dom7b9','7b9').replace('mIn','min')   
+    return symbol.replace(' ','').replace('-','m').replace('maj','M').replace('Maj','M').replace('i','I').replace('v','V').replace('I7','Idom7').replace('V7','Vdom7').replace('dom7b9','7b9').replace('mIn','min').replace('dIm','dim')   
 
 def parse_progression(progression) -> List[str]:
     '''
@@ -86,7 +86,10 @@ def numerals_list_to_shorthand_list(numerals, key='C'):
         '''
         if isinstance(numerals, str):
             raise TypeError('Did you mean utilities.parse_progression(numerals)?')
-        chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
+        try:
+            chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
+        except NoteFormatError:
+            chord_notes = [progressions.to_chords(chord, key=synonyms[key])[0] for chord in numerals]
         return [chords.determine(chord, shorthand=True)[0] for chord in chord_notes] # shorthand e.g. ['CM7',...]
 
 def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 'Bb7'], key='C'):
@@ -105,7 +108,10 @@ def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 
     proc_progression = [[get_note(chord), chord[len(get_note(chord)):]] for chord in progression] # splits a shorthand (e.g. 'C#M7' -> ['C#','M7'])
     
     # the numeral is the note's index in the chromatic scale of this key
-    scale = scales.Chromatic(key)
+    try:
+        scale = scales.Chromatic(key)
+    except NoteFormatError:
+        scale = scales.Chromatic(synonyms[key])
     scale_list = []
     for i in range(0, len(scale)-1):
         x = scale.degree(i+1)
