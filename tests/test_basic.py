@@ -331,6 +331,31 @@ class ScalePatternGeneration(unittest.TestCase):
          #   print(cond)
             assert cond
 
+    def test_get_diatonic_chords(self):
+
+        from sidewinder.utilities import get_scale
+        from sidewinder.melodies.patterns import get_scale_patterns
+        from sidewinder.lick_library import respell_and_determine
+
+        # note assert will fail if we use alternative shorthands like Maj7
+        expected = {
+            'phrygian': {1: 'Cm7', 2: 'DbM7', 3: 'Eb7', 4: 'Fm7', 5: 'Gm7b5', 6: 'AbM7', 7: 'Bbm7'},
+            'major': {1: 'CM7', 2: 'Dm7', 3: 'Em7', 4: 'FM7', 5: 'G7', 6: 'Am7', 7: 'Bm7b5'},
+        }
+        
+        # 1 3 5 7 on each scale degree
+        for scale in list(expected.keys()):
+            
+            chord_degrees = [[i+j for i in (1,3,5,7)] for j, note in enumerate(get_scale(scale))]
+            chord_notes = [get_scale_patterns(scale, p=chord_degrees[j]) for j, note in enumerate(get_scale(scale))]
+
+            # then recognise as chord
+            chords = [respell_and_determine(chord, shorthand=True) for chord in chord_notes[0]['C']]
+
+            for k,v in expected[scale].items():
+                assert chords[k-1][0][0] == v
+
+
     def test_note_to_scale_degree(self):
 
         from sidewinder.utilities import note_to_scale_degree as n
