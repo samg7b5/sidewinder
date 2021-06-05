@@ -372,7 +372,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
     if key is None:
         key = assume_key(root, chord_type, mode)
 
-        # TODO: handle modes / alterations (also see above) 
+        # TODO: handle modes / alterations (also see above, and eg Chad LB scale recommendations on dominants) 
         # assume_key() is assuming major tonality (more precisely, diatonic_thirteen() is assuming major tonality and assume_key() provides accordingly)
         if key is None: # if assume_key didn't work e.g. for a 7b9 which does not arise on any 7th chord built from the major scale
             if chord_type == '7b9':

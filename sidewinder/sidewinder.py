@@ -18,19 +18,12 @@ from datetime import datetime
 #import numpy as np
 #import random
 
-import sidewinder.utilities as utilities # aim to remove this line
-from sidewinder.utilities import parse_progression, numerals_list_to_shorthand_list, shorthand_list_to_numerals_list
-
-synonyms = {'C#':'Db',
-            'D#':'Eb',
-            'E':'Fb',
-            'E#':'F',
-            'F#':'Gb',
-            'G#':'Ab',
-            'A#':'Bb',
-            'B':'Cb',
-            'B#':'C'}
-synonyms_r = {v:k for k,v in synonyms.items()}
+from sidewinder.utilities import (
+    parse_progression, 
+    numerals_list_to_shorthand_list, 
+    shorthand_list_to_numerals_list, 
+    synonyms,
+    )
 
 
 class Chart():
@@ -50,12 +43,12 @@ class Chart():
         # initial parsing of progression which may arrive in various formats; populate internal representations as best as possible
         if progression is not None:
             if progression[0][0] in ['I', 'V', 'i', 'v']:
-                self.progressionNumeralsList = utilities.parse_progression(progression)
+                self.progressionNumeralsList = parse_progression(progression)
                 self.progressionShorthandList = numerals_list_to_shorthand_list(self.progressionNumeralsList, key=self.key) # ['Dm7', 'Gdom7', 'CM7']
             else: # if shorthand str or shorthand list
                 if type(progression) == str:
                     self.progressionRawShorthandString = progression
-                self.progressionShorthandList = utilities.parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
+                self.progressionShorthandList = parse_progression(progression) # ['Dm7', 'Gdom7', 'CM7']
             self.progressionShorthandTuplesList = [chords.chord_note_and_family(chord) for chord in self.progressionShorthandList] # [('D', 'm7'), ('G', '7'), ('C', 'M7')]
 
     def __repr__(self):
@@ -84,11 +77,11 @@ def detect_numeral_pattern(progression, pattern=['IIm7','V7','IM7'], transposing
     pattern is the target chunk to find
     Transposing option is to detect the pattern outside of the original key
     '''
-    progression = utilities.parse_progression(progression)
-    pattern = utilities.parse_progression(pattern)
+    progression = parse_progression(progression)
+    pattern = parse_progression(pattern)
     window_size = len(pattern)
 
-    if pattern == utilities.parse_progression(['IIm7','V7','IM7']):
+    if pattern == parse_progression(['IIm7','V7','IM7']):
         print('sidewinder.detect_numeral_pattern: did you also want to look for [IIm7,V7,IM6] ?')
     
     out = {

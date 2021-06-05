@@ -99,7 +99,7 @@ def get_chords_from_track(track):
             best_or_none = lambda x: None if x==[] else x[0]
             most_likely_chord = best_or_none(most_likely_chord_names)
             
-            # get shorthand as mingus doesn't have a chord-from-fullname function
+            # get shorthand as mingus doesn't have a chord-from-fullname function TODO replace with kwarg in respell_and_determine
             if most_likely_chord is not None:
                 ch = [most_likely_chord.split(' ')[0]] + [' '.join(most_likely_chord.split(' ')[1:])]
                 sh = ch[0] + chord_to_shorthand[f' {ch[1]}']
