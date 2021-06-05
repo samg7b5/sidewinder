@@ -2,6 +2,8 @@
 # Note: using `pip install -e .` as per https://docs.pytest.org/en/latest/explanation/goodpractices.html#goodpractices
 # TO-DO: unittest -> pytest (?)
 
+from math import exp
+from sidewinder.utilities import reduce_to_seventh_chord, reduce_to_triad
 import sidewinder
 import unittest
 
@@ -442,6 +444,50 @@ class LicksOverChords(unittest.TestCase):
     def test_get_scale_choices_over_chord_shorthand(self):
         # less contextual info so make assumptions 
         ...
+
+
+class AnalyseChordsAndExtensions(unittest.TestCase):
+    """Know when to extend/alter chords given harmonic context"""
+
+    from sidewinder.utilities import reduce_to_seventh_chord, reduce_to_triad
+
+    def test_reduce_to_seventh_chord(self):
+
+        cases = [
+            ('CM13','CM7'),
+            ('CM11','CM7'),
+            ('CM7#11','CM7'),
+            ('CM9','CM7'),
+            ('G7alt','G7'),
+            ('E7b9','E7')
+        ]
+
+        for test, expected in cases:
+            assert reduce_to_seventh_chord(test) == expected # synonyms?
+
+    def test_reduce_to_triad(self):
+        '''
+        Note: this is not equivalent to detecting tonality because e.g. G7 is more like CM than GM
+        '''
+
+        cases = [
+            ('CM13','CM'),
+            ('CM11','CM'),
+            ('CM7#11','CM'),
+            ('CM9','CM'),
+            ('C6/9','CM'),
+            ('Cadd9','CM'),
+            ('C+9','CM'),
+            ('G7alt','GM'),
+            ('E7b9','EM'),
+            ('Dm13','Dm'),
+            ('Bbm7b9','Bbm'),
+            ('Dm6', 'Dm')
+        ]
+
+        for test, expected in cases:
+            print(test, expected, reduce_to_triad(test))
+            assert reduce_to_triad(test) == expected # synonyms?
 
 if __name__ == '__main__':
     unittest.main()
