@@ -12,7 +12,7 @@ import mingus.core.progressions as progressions
 from mingus.core import intervals, notes
 import mingus.core.scales as scales
 import mingus.core.chords as chords
-from mingus.core.chords import from_shorthand, chord_note_and_family, diatonic_thirteenth
+from mingus.core.chords import determine_triad, from_shorthand, chord_note_and_family, diatonic_thirteenth
 from mingus.midi import midi_file_out
 
 from datetime import datetime
@@ -388,6 +388,53 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
             print(f'Problem fetching diatonic_thirteenth({root},{key})')
 
     return diatonic_extended_chord[extension_index[extension]]
+
+def reduce_to_seventh_chord(chord):
+
+    chord = parse_symbol(chord)
+    note, chord = chord_note_and_family(chord)
+
+    reduce = {
+        'M13': 'M7',
+        'M13#11': 'M7',
+        'M11': 'M7',
+        'M9#11': 'M7',
+        'M7#11': 'M7',
+        'M9': 'M7',
+        '+9': 'M', # Cadd9 or C+9 is CEGD, maybe reduce to C only?
+        'add9': 'M',
+        'M6': 'M7',
+        '6': 'M7',
+        '6/9': 'M7',
+        '9': '7',
+        '9#11': '7',
+        '11': '7',
+        '13': '7',
+        '7b9': '7',
+        '7#9': '7',
+        '7#11': '7',
+        '7#5': '7',
+        '7#9#5': '7',
+        '7b13': '7',
+        '7alt': '7',
+        'm13': 'm7',
+        'm11': 'm7',
+        'm9': 'm7',
+        'm+9': 'm7',
+        'm7b13': 'm7',
+        'm7b11': 'm7',
+        'm7b9': 'm7',
+        'm7b5': 'm7',
+        'm6': 'm7',
+    }
+
+    return note + reduce[chord]
+
+def reduce_to_triad(chord, shorthand=True):
+
+    chord = reduce_to_seventh_chord(chord)
+    chord = progression_to_chords([chord])[0]
+    return determine_triad(chord[:3], shorthand=shorthand)[0]
 
 #%% Tracks / MIDI
 
