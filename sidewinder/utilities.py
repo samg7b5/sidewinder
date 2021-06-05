@@ -99,8 +99,11 @@ def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 
     progression = parse_progression(progression)
     
     def get_note(symbol):
-        if symbol[1] == '#' or symbol[1] == 'b':
-            return symbol[0:2]
+        if len(symbol) > 1:
+            if symbol[1] == '#' or symbol[1] == 'b':
+                return symbol[0:2]
+            else: 
+                return symbol[0]
         else:
             return symbol[0]
         
@@ -403,6 +406,8 @@ def reduce_to_seventh_chord(chord):
         'M9': 'M7',
         '+9': 'M', # Cadd9 or C+9 is CEGD, maybe reduce to C only?
         'add9': 'M',
+        'M7': 'M7',
+        '': 'M7',
         'M6': 'M7',
         '6': 'M7',
         '6/9': 'M7',
@@ -417,6 +422,8 @@ def reduce_to_seventh_chord(chord):
         '7#9#5': '7',
         '7b13': '7',
         '7alt': '7',
+        '7': '7',
+        '7+9': '7',
         'm13': 'm7',
         'm11': 'm7',
         'm9': 'm7',
@@ -425,6 +432,8 @@ def reduce_to_seventh_chord(chord):
         'm7b11': 'm7',
         'm7b9': 'm7',
         'm7b5': 'm7',
+        'm7': 'm7',
+        'm': 'm7',
         'm6': 'm7',
     }
 

@@ -512,6 +512,15 @@ class AnalyseChordsAndExtensions(unittest.TestCase):
             print(test, expected, reduce_to_triad(test))
             assert reduce_to_triad(test) == expected # synonyms?
 
+    def test_Chart_get_simplified_numeral_representation(self):
+
+        from sidewinder import Chart
+        from sidewinder.snippets import yardbird_suite
+        
+        ybird = Chart(yardbird_suite, 'A')
+        assert ybird.get_simplified_numeral_representation('triad') == ['IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'VIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IM', 'IM', 'VIIM', 'IIIm', 'bVm', 'VIIM', 'IIIm', 'VIM', 'IIm', 'IIIm', 'VIM', 'IIM', 'IIM', 'bIIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'IIm', 'VM', 'IM', 'IVm', 'bVIIM']
+        assert ybird.get_simplified_numeral_representation('seventh') == ['IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'VI7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'I7', 'IM7', 'VII7', 'IIIm7', 'bVm7', 'VII7', 'IIIm7', 'VI7', 'IIm7', 'IIIm7', 'VI7', 'II7', 'II7', 'bII7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'IIm7', 'V7', 'IM7', 'IVm7', 'bVII7']
+
 
 class ChordSubstitutions(unittest.TestCase):
     """"""

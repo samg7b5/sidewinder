@@ -22,6 +22,8 @@ from sidewinder.utilities import (
     parse_progression, 
     numerals_list_to_shorthand_list, 
     shorthand_list_to_numerals_list, 
+    reduce_to_seventh_chord,
+    reduce_to_triad,
     synonyms,
     )
 
@@ -60,6 +62,14 @@ class Chart():
             if key is None:
                 key = 'C'
         return shorthand_list_to_numerals_list(self.progressionShorthandList, key=key)
+
+    def get_simplified_numeral_representation(self, type='triad'):
+        reduce_func = {
+            'triad': reduce_to_triad,
+            'seventh': reduce_to_seventh_chord,
+        }
+        # this feels slightly circular..?
+        return Chart([reduce_func[type](chord) for chord in self.progressionShorthandList], key=self.key).get_numeral_representation()
 
     def set_durations(self, durations=None):
         if durations is None:
