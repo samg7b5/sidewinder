@@ -445,6 +445,29 @@ class LicksOverChords(unittest.TestCase):
         # less contextual info so make assumptions 
         ...
 
+    def test_whether_numerals_sevenths_belong_to_a_mode(self):
+
+        from sidewinder.snippets import CHUNKS
+        from sidewinder.utilities import get_scale
+
+        chords_ = CHUNKS["2514"] + CHUNKS["minor 251m7"] + ['I7']
+        chart = sidewinder.Chart(progression=chords_, key=self.misty_key) # in F
+        
+        scale_types = ['major','harmonic minor','melodic minor']
+        from sidewinder.harmony.changes import get_diatonic_chords # this is the key functionality added
+        diatonic_seventh_chords = get_diatonic_chords(scale_types, (1,3,5,7))
+
+        diatonic_chords = {scale: {} for scale in scale_types}
+        for key in get_scale('chromatic'):
+            transposed_chart = chart.get_numeral_representation(key=key.name)
+            for scale in scale_types:
+                diatonic_chords[scale][key.name] = [chord if chord in diatonic_seventh_chords[scale] else False for chord in transposed_chart]
+
+        assert diatonic_chords['major']['F'] == ['IIm7', 'V7', 'IM7', 'IVM7', False, 'V7', False, False]
+        assert diatonic_chords['harmonic minor']['F'] == [False, 'V7', False, False, 'IIm7b5', 'V7', False, False]
+        ...
+
+
 
 class AnalyseChordsAndExtensions(unittest.TestCase):
     """Know when to extend/alter chords given harmonic context"""
