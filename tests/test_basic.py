@@ -512,5 +512,26 @@ class AnalyseChordsAndExtensions(unittest.TestCase):
             print(test, expected, reduce_to_triad(test))
             assert reduce_to_triad(test) == expected # synonyms?
 
+
+class ChordSubstitutions(unittest.TestCase):
+    """"""
+
+
+    def test_get_available_substitutions(self):
+
+        from sidewinder import Chart
+        from sidewinder.harmony.substitutions import get_available_chord_subs
+        from sidewinder.snippets import CHUNKS, CHORD_SUBS, yardbird_suite
+
+        
+        ybird = Chart(yardbird_suite, 'A') 
+
+        chosen_subs = [
+            get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[0],
+            get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[1],
+            get_available_chord_subs(CHORD_SUBS['tritone'], ybird.get_numeral_representation(), ybird.key)[5],
+        ]
+        ...
+
 if __name__ == '__main__':
     unittest.main()
