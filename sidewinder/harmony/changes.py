@@ -1,13 +1,18 @@
+from mingus.core import notes, intervals
+
 from sidewinder import Chart
 from sidewinder.utilities import get_scale
 from sidewinder.melodies.patterns import get_scale_patterns
 from sidewinder.lick_library import respell_and_determine
+from sidewinder.utilities import numerals_list_to_shorthand_list
+from sidewinder.snippets import CHUNKS
+
+############# Analysis
 
 def get_diatonic_chords(scales, shape=(1,3,5)):
     '''
     Play a chord shape starting on each scale degree
-    
-    Return the given chord starting on each scale degree
+    Return the resultant chords as numerals
 
     scales: str ('major') or [str] (['major', 'harmonic minor', ...])
 
