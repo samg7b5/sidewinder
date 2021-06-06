@@ -517,7 +517,10 @@ class AnalyseChordsAndExtensions(unittest.TestCase):
         from sidewinder import Chart
         from sidewinder.snippets import yardbird_suite
         
-        ybird = Chart(yardbird_suite, 'A')
+        ybird = Chart(yardbird_suite, 'A') # "A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, F#7,\
+                  # A, D-, G7, A7, G7, F#7, B7, E7, A7, A, G#7+9, \
+                  # C#-, D#m7b5, G#7+9, C#-, F#7, B-, C#m7b5, F#7, B7, B7, Bb7, \
+                  # A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, B-, E7, A, D-, G7" # in A
         assert ybird.get_simplified_numeral_representation('triad') == ['IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'VIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IM', 'IM', 'VIIM', 'IIIm', 'bVm', 'VIIM', 'IIIm', 'VIM', 'IIm', 'IIIm', 'VIM', 'IIM', 'IIM', 'bIIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'IIm', 'VM', 'IM', 'IVm', 'bVIIM']
         assert ybird.get_simplified_numeral_representation('seventh') == ['IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'VI7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'I7', 'IM7', 'VII7', 'IIIm7', 'bVm7', 'VII7', 'IIIm7', 'VI7', 'IIm7', 'IIIm7', 'VI7', 'II7', 'II7', 'bII7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'IIm7', 'V7', 'IM7', 'IVm7', 'bVII7']
 
