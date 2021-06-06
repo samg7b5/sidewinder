@@ -432,6 +432,24 @@ class LicksOverChords(unittest.TestCase):
         found_transposed = [(hit['start_index'], hit['key']) for hit in two_five_ones['transposed_hits']]
         assert expect_transposed == found_transposed
 
+    def test_detect_all_CHUNKS(self):
+
+        from sidewinder.snippets import CHUNKS, yardbird_suite
+        from sidewinder.sidewinder import detect_numeral_pattern, Chart
+        from random import choices
+        
+        choice = [list(CHUNKS.items())[i] for i in (0,0,2,1,1,3)]
+        hits = {key: detect_numeral_pattern(
+            Chart([ch for chunk in choice for ch in chunk[1]], 'A').get_numeral_representation(), 
+            pattern=CHUNKS[key], 
+            original_key='A'
+            ) for key in [chunk[0] for chunk in choice]}
+        # filter out empties
+        hits = {chunk: hits[chunk] for chunk in list(hits.keys()) if any([len(hits[chunk][key])>0 for key in list(hits[chunk].keys())])}
+        
+        assert [hit['start_index'] for key in hits.keys() for hit in hits[key]['hits']] == [0, 2, 4, 8, 11, 16, 4, 4, 8, 11, 16, 14]
+
+
     def test_suggested_db_lick_has_correct_chords_and_durations(self):
         ... # see example 03
 
@@ -539,8 +557,8 @@ class ChordSubstitutions(unittest.TestCase):
         ybird = Chart(yardbird_suite, 'A') 
 
         chosen_subs = [
-            get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[0],
-            get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[1],
+            # get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[0],
+            # get_available_chord_subs(CHORD_SUBS['backdoor 25'], ybird.get_numeral_representation(), ybird.key)[1],
             get_available_chord_subs(CHORD_SUBS['tritone'], ybird.get_numeral_representation(), ybird.key)[5],
         ]
         ...

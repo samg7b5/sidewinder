@@ -67,7 +67,15 @@ def parse_symbol(symbol):
         - mingus progressions.to_chords() uses classical approach V7 = diatonic 7th, hence the 'dom' replacements
 
     '''
-    return symbol.replace(' ','').replace('-','m').replace('maj','M').replace('Maj','M').replace('i','I').replace('v','V').replace('I7','Idom7').replace('V7','Vdom7').replace('dom7b9','7b9').replace('mIn','min').replace('dIm','dim')   
+    # generic 
+    symbol = symbol.replace(' ','')
+    # major and minor
+    symbol = symbol.replace('-','m').replace('maj','M').replace('Maj','M').replace('i','I').replace('v','V')
+    symbol = symbol.replace('mIn','min').replace('dIm','dim')   
+    # dominants (numeral needs to say dom; alterations should not say dom)
+    symbol = symbol.replace('I7','Idom7').replace('V7','Vdom7').replace('dom7b9','7b9').replace('dom7#11','7#11').replace('dom7alt','7alt')
+
+    return symbol
 
 def parse_progression(progression) -> List[str]:
     '''

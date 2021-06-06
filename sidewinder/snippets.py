@@ -71,8 +71,8 @@ misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 
 # could be simplified
 yardbird_suite = "A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, F#7,\
-                  A, D-, G7, A7, G7, F#7, B7, E7, A7, A, G#7+9, \
-                  C#-, D#m7b5, G#7+9, C#-, F#7, B-, C#m7b5, F#7, B7, B7, Bb7, \
+                  A, D-, G7, A7, G7, F#7, B7, E7, A7#11, A, G#7alt, \
+                  C#-, D#m7b5, G#7b9, C#-, F#7, B-, C#m7b5, F#7, B7, B7, Bb7, \
                   A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, B-, E7, A, D-, G7" # in A
 
 yardbird_suite_durs = [1, 2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 
