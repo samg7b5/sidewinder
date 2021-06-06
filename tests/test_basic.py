@@ -455,14 +455,20 @@ class LicksOverChords(unittest.TestCase):
 
 
     def test_get_scale_choices_over_key_and_numeral_chord(self):
-        # e.g. iii chord assume Phrygian e.g. Am7 in F - A Bb C D E F G . Also see get_diatonic_upper_extensions
-        key, chord = ('F', 'iiim7') # should return ['A phrygian', ]
-        ...
+        
+        from sidewinder.harmony.changes import get_diatonic_chords
+
+        # e.g. iii chord could be Phrygian e.g. Am7 in F - A Bb C D E F G . Also see get_diatonic_upper_extensions
+        for key, mode, chord in [
+            ('F', 'major', 'iiim7'), # should return ['A phrygian', ]
+        ]:
+            assert True
+        ... # see current scratch.py ("diatonic_chords")
 
     def test_get_scale_choices_over_chord_shorthand(self):
         # less contextual info so make assumptions 
         ...
-
+    
     def test_whether_numerals_sevenths_belong_to_a_mode(self):
 
         from sidewinder.snippets import CHUNKS
@@ -541,6 +547,14 @@ class AnalyseChordsAndExtensions(unittest.TestCase):
                   # A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, B-, E7, A, D-, G7" # in A
         assert ybird.get_simplified_numeral_representation('triad') == ['IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'VIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IM', 'IM', 'VIIM', 'IIIm', 'bVm', 'VIIM', 'IIIm', 'VIM', 'IIm', 'IIIm', 'VIM', 'IIM', 'IIM', 'bIIM', 'IM', 'IVm', 'bVIIM', 'IM', 'bVIIM', 'VIM', 'IIM', 'VM', 'IIIm', 'VIM', 'IIm', 'VM', 'IM', 'IVm', 'bVIIM']
         assert ybird.get_simplified_numeral_representation('seventh') == ['IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'VI7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'I7', 'IM7', 'VII7', 'IIIm7', 'bVm7', 'VII7', 'IIIm7', 'VI7', 'IIm7', 'IIIm7', 'VI7', 'II7', 'II7', 'bII7', 'IM7', 'IVm7', 'bVII7', 'I7', 'bVII7', 'VI7', 'II7', 'V7', 'IIIm7', 'VI7', 'IIm7', 'V7', 'IM7', 'IVm7', 'bVII7']
+
+    def test_get_scale_degrees_forming_chord(self):
+
+        cases = [
+            ('major','M',(1,3,5,7)),
+            ('major','M7',(1,3,5,7)),
+        ]
+        ...
 
 
 class ChordSubstitutions(unittest.TestCase):
