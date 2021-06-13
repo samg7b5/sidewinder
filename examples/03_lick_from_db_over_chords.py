@@ -81,7 +81,7 @@ def main():
     # candidate_licks[0].to_midi()
 
     notes_ = [nc[2] for bar in lick251.passage for nc in bar]
-    notes_ = [nc[0] if bool(nc) else None for nc in notes_]
+    notes_ = [nc[0] if bool(nc) else None for nc in notes_] # rests (specified as None or []) become None
     durations_ = [nc[1] for bar in lick251.passage for nc in bar]
 
     # [start of Misty ... 251 lick notes_,durations_ ... rest of Misty] 
