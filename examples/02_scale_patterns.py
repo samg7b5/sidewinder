@@ -147,7 +147,7 @@ exercises[9] = new_exercise.copy()
 
 # 3.5 arpeggiate up/down scale
 arp7 = [1,3,5,7,8,7,5,3,1]
-arp7 = [1,3,5,7,8,10,12,14,15,14,12,10,8,7,5,3,1] # TODO: does this work?
+arp7 = [1,3,5,7,8,10,12,14,15,14,12,10,8,7,5,3,1] # extend up octaves with +7s
 exercises[10] = get_scale_patterns('Major', p=arp7, keys=cycle_of_fifths()) 
 exercises[11] = get_scale_patterns('Major', p=arp7, keys=cycle_of_fifths(), descending=True)
 
