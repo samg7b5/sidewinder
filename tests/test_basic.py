@@ -577,5 +577,51 @@ class ChordSubstitutions(unittest.TestCase):
         ]
         ...
 
+class LineConstructionAlgorithm(unittest.TestCase):
+    """Building on ScalePatternGeneration and example 02_scale_patterns to compose melodic lines utilising:
+    - guide tones
+    - shape-based vocabulary
+    - substitutions etc. towards a full Improvisor class
+    
+    NOTE: also see LicksOverChords test class"""
+
+    # THESE TESTS COVER THE POC IMPLEMENTATION OF THE IMPROVISER CLASS (WITH AIM TO BUILD GUIDE TONE ALGO)
+    def test_get_chunk_func_dv_dh_from_script(self):
+        '''
+        Return possible "chunk_funcs" (functions which construct melodic chunks) matching
+        the given vertical and horizontal constraints (e.g. up an octave, in 4 beats)
+        where the cf's are stored in python scripts (e.g. as python functions)
+        '''    
+        ...
+
+    def test_get_chunk_func_dv_dh_from_db(self):
+        '''
+        As above but returning cf's stored in db rather than in scripts
+        '''
+        ...
+    
+    def test_get_chunk_funcs_dv_dh(self):
+        '''
+        Return possible cf's without needing to specify their location (db/script)
+        '''
+        ...
+    
+    # TODO other form of GET e.g. keyword based ("bebop" etc.)? - see LicksOverChords test class
+
+    def test_set_timeline_of_chunk_funcs(self):
+        '''
+        From a given set of cf's, construct a meaningful, declarative temporal representation
+        '''
+        ...
+    
+    def test_apply_timeline_of_chunk_funcs(self):
+        '''
+        Execute a timeline of generative policies (cf's) i.e. produce a set of notes and durations
+        NOTE: this may require inputting chords/durations into cf's, which in future might be wrapped
+              up inside handling of policy conditioning (but also could stay separate as chords are a
+              special case of conditioning)
+        '''
+        ...
+    
 if __name__ == '__main__':
     unittest.main()
