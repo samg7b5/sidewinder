@@ -6,10 +6,11 @@ Holds utility-style functions that are used across different mid-level Sidewinde
 
 @author: Sam
 """
+from functools import reduce
 from mingus.containers import Note, Track, Bar
 from mingus.core.mt_exceptions import NoteFormatError
 import mingus.core.progressions as progressions
-from mingus.core import intervals, notes
+from mingus.core import intervals, notes, value
 import mingus.core.scales as scales
 import mingus.core.chords as chords
 from mingus.core.chords import determine_triad, from_shorthand, chord_note_and_family, diatonic_thirteenth
@@ -454,6 +455,36 @@ def reduce_to_triad(chord, shorthand=True):
     return determine_triad(chord[:3], shorthand=shorthand)[0]
 
 #%% Tracks / MIDI
+
+def total_duration(durations):
+    # I'm not convinced mingus determine works all the time, maybe fails on >1 bar?
+    # e.g. [16,16,16,16,4,8,8] should sum to 3x quarter notes (1/0.75) but gives 4/5th of a bar (1.25)
+    # maybe the tuplet fraction is the other way up?
+    total_dur = value.determine(
+        reduce(
+            lambda x,y: value.add(
+                
+                value.dots(value.determine(x)[0], value.determine(x)[1])
+                if value.determine(x)[1] > 0 # dots and tuplets are mutually exclusive returns of determine
+                else value.tuplet(value.determine(x)[0], value.determine(x)[2], value.determine(x)[3]),
+                
+                value.dots(value.determine(y)[0], value.determine(y)[1])
+                if value.determine(y)[1] > 0 # dots and tuplets are mutually exclusive returns of determine
+                else value.tuplet(value.determine(y)[0], value.determine(y)[2], value.determine(y)[3]),
+                
+                ), 
+            durations[:-1])
+        )
+    total_dur = value.tuplet(total_dur[0],total_dur[2],total_dur[3]) # parse determine's output
+    
+    # alternative but floating point arithmetic might screw this up - also assumes 4/4
+    total_dur = 1/reduce(lambda x,y: x+y, [1/n for n in durations[:-1]])
+    
+    # NOTE an alternative which is perhaps the most robust (time sigs etc) is to build
+    # a dummy Bar(s) and then calculate the current position / total length
+    
+    return total_dur
+
 
 def track_to_degrees(track, key, scale, **kwargs):
     notes = [notev[2] for notev in track.get_notes()] # gives a list of NoteContainers
