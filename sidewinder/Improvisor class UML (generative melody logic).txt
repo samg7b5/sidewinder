@@ -1,0 +1,114 @@
+@startuml
+
+state Chart {
+  state Chunks {
+  }
+}
+
+Chart ---> init : input
+init --> chords : set
+init --> durations : set
+'chords ---> Chunks : Detect on _ _init_ _
+
+
+state Improvisor {
+  state init {
+
+  }
+  init : _init_ method
+
+  state timeline {
+    state chosen_policies {
+    }
+    chosen_policies : eg as strings
+    state chords {
+    }
+    chords: aligned with durations
+  
+    state durations {
+    }
+  }
+
+  state ConditioningManager {
+    state automatic_conditioning {
+      state fn_create_chunks {
+      }
+    }
+    state non_automatic_conditioning{
+      state fn_add_Tension_curve {
+      }
+    }
+  }
+  state chunks {
+  }
+  chunks: conditioning example
+  init --> automatic_conditioning : trigger autocreate eg chunks
+  fn_create_chunks -> chunks
+  chunks -> conditioning 
+
+  state conditioning {
+  }
+  conditioning: anticipation (chord/key/scale timings)
+  conditioning: phrasing
+  conditioning: tension and release profile
+'  note right of conditioning: refactor as policies\nor chord subs etc.?
+
+  state PolicyManager{
+    state ChordSub_PS {
+    }
+    state MelodyGen_PS {
+    }
+  }
+  PolicyManager: base class
+  PolicyManager: has GET methods \n- check_if_valid_policy\n- select_from_valid (w/ e.g. conditioning randomness)
+  PolicyManager: has SET methods \n- add chosen policy to timeline
+  PolicyManager: has APPLY methods \n- execute policies on timeline
+  ChordSub_PS: auto APPLY
+  PolicyManager: manual APPLY
+  timeline --> PolicyManager : chords and durations as input to policies? should be treated as conditioning?
+  conditioning ---> PolicyManager
+  note left of PolicyManager: should have run methods
+
+
+  state fn_{
+  }
+  fn_: ""
+  hide fn_
+
+}
+
+state GenerativePolicies #lightblue {
+}
+GenerativePolicies: bebop language
+GenerativePolicies: get lick from db
+GenerativePolicies: see mDecks algorithm etc.
+GenerativePolicies: dict should contain constraints (for GET validity check)
+'GenerativePolicies --> Improvisor : belongs to?
+MelodyGen_PS --> GenerativePolicies: GET
+GenerativePolicies --> chosen_policies : SET
+chosen_policies --> MelodyGen_PS : APPLY
+MelodyGen_PS ---> Track_unf : APPLY
+note on link: create_missing_conditioning=False
+
+
+state GlobalModifiers {
+}
+GlobalModifiers : e.g. removal of certain notes
+GlobalModifiers : e.g. stochastic temperature (=> monte carlo?)
+note bottom of GlobalModifiers: maybe? \nlike post-proc (but could also do in Ableton, say)
+
+state ChordSubstitutions #lightblue {
+}
+ChordSubstitutions: tritone sub etc.
+ChordSub_PS --> ChordSubstitutions : GET
+ChordSubstitutions --> chords : APPLY
+
+state Track_unf {
+}
+Track_unf --> GlobalModifiers
+GlobalModifiers --> Track
+
+note right of conditioning: * used to create/modify\nsub/policy strat?\n* fn_ export \n('characteristic style')\n* potentially dynamic\ni.e. derived from chords / output
+
+
+@enduml
