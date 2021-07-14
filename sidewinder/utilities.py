@@ -473,12 +473,13 @@ def total_duration(durations):
                 else value.tuplet(value.determine(y)[0], value.determine(y)[2], value.determine(y)[3]),
                 
                 ), 
-            durations[:-1])
+            durations)
         )
     total_dur = value.tuplet(total_dur[0],total_dur[2],total_dur[3]) # parse determine's output
     
-    # alternative but floating point arithmetic might screw this up - also assumes 4/4
-    total_dur = 1/reduce(lambda x,y: x+y, [1/n for n in durations[:-1]])
+    # alternative but floating point arithmetic might screw this up (hence round) 
+    # also assumes 4/4
+    total_dur = round(1/reduce(lambda x,y: x+y, [1/n for n in durations]),10)
     
     # NOTE an alternative which is perhaps the most robust (time sigs etc) is to build
     # a dummy Bar(s) and then calculate the current position / total length

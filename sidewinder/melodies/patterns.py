@@ -1,4 +1,5 @@
 import mingus.core.scales as scales
+# NOTE: do not import from other scripts in sidewinder.melodies
 from sidewinder.utilities import get_scale
 from collections import OrderedDict
 
@@ -9,7 +10,7 @@ def scale_pattern(scale, p=[1,3,5,7], offset=0):
     '''
     return [scale[(idx+offset-1) % len(scale)] for idx in p]
 
-def get_scale_patterns(chosen_scale='Ionian', p=[1,3,5,7], keys=['C'], descending=False, name_only=False, pattern_as_chromatic=False):
+def get_scale_patterns(chosen_scale='Ionian', p=[1,3,5,7], keys=['C'], descending=False, name_only=False, pattern_as_chromatic=False, **kwargs):
     ''' 
         Returns notes indexed by p in the chosen_scale and keys.
         Descending: bool - reverse p

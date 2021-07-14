@@ -3,7 +3,9 @@
 # TO-DO: unittest -> pytest (?)
 
 from math import exp
-from sidewinder.utilities import reduce_to_seventh_chord, reduce_to_triad
+from random import choices, randint
+from sidewinder.melodies.techniques import get_dh
+from sidewinder.utilities import numerals_list_to_shorthand_list, reduce_to_seventh_chord, reduce_to_triad
 import sidewinder
 import unittest
 
@@ -592,8 +594,48 @@ class LineConstructionAlgorithm(unittest.TestCase):
         the given vertical and horizontal constraints (e.g. up an octave, in 4 beats)
         where the cf's are stored in python scripts (e.g. as python functions)
         '''    
-        ...
+        from mingus.containers import Note
+        from sidewinder.utilities import total_duration
+        from sidewinder.melodies.techniques import DIATONIC_CHUNKS, CHROMATIC_CHUNKS, GENERATIVE_CHUNKS, check_cf_dv_dh, apply_cf
 
+        # search for chunk funcs from techniques.py
+        chunk_funcs = (DIATONIC_CHUNKS.keys(), CHROMATIC_CHUNKS.keys(), GENERATIVE_CHUNKS.keys())
+        chunk_funcs = [cf for cfs in chunk_funcs for cf in cfs]
+
+        num_tests = 10
+        successes = 0
+        for i in range(num_tests):
+            # suppose I have a melody which begins a bar with a note on beat 1 and 
+            # ends with another note that occurs some time later
+            melody = [Note().from_int(randint(40,50)), None, None, None, None, Note().from_int(randint(40,50))]
+            durs = choices([1,2,4,8,16], k=len(melody)) # note that the final duration is irrelevant
+
+            # calculate dv, dh
+            dv = int(melody[-1]) - int(melody[0])
+            dh = total_duration(durs[:-1]) # e.g. 4 = quarter note
+            print(f'Melody {i}: {melody}, {durs} has dv:{dv} dh:{dh} ({1/dh})')
+
+            valid_cfs = check_cf_dv_dh(dv, dh, chunk_funcs)
+
+            # apply technique(s) and validate the result
+            if valid_cfs is not None:
+                if not isinstance(valid_cfs, list):
+                    valid_cfs = [valid_cfs]
+                for cf in valid_cfs:
+                    chunk = apply_cf(cf)[0]#, start=melody[0])
+                    # check dv
+                    assert int(chunk[-1]) - int(chunk[0]) == dv
+                    # check dh
+                    cf_dh = get_dh(cf) 
+                    assert cf_dh == dh or cf_dh is None
+                    print(f"{cf} is valid")
+                    successes += 1
+            else:
+                print("No valid cfs found")
+            
+        assert successes > 0, "Warning (flaky test) - no successful cf match on dv,dh"
+
+                
     def test_get_chunk_func_dv_dh_from_db(self):
         '''
         As above but returning cf's stored in db rather than in scripts
