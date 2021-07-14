@@ -61,13 +61,13 @@ misty = 'IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, iii-7, VI7, ii-7,
             IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, bVII9, IM7, \
             v-7, I7b9, IVM7, IVM7,\
             bv-7, VII7, II7, iii-7, VI7b9, ii-7, V7, \
-            IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, I6, I6'
+            IM7, v-7, I7, IVM7, iv-9, bVII7, IM7, vi-7, ii-7, V7, III7, VI7b9, iim7b5, V7, I6'
 
 misty_durs = [1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
             1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 
             1, 1, 1, 1, 
             1, 2, 2, 2, 2, 2, 2, 
-            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1]
+            1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 1]
 
 # could be simplified
 yardbird_suite = "A, D-, G7, A7, G7, F#7, B7, E7, C#-, F#7, F#7,\
@@ -79,4 +79,22 @@ yardbird_suite_durs = [1, 2, 2, 2, 2, 1, 1, 1, 2, 2, 1,
                        1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 
                        1, 2, 2, 1, 1, 1, 2, 2, 1, 2, 2, 
                        1, 2, 2, 2, 2, 1, 1, 0.5, 2, 2, 
-                       1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2]
+                       1, 2, 2, 2, 2]
+
+
+
+# other examples
+sentimental = 'E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, Ab7, Gmaj7, F-7, Bb7, Ebmaj7, C-7, F-7, Bb7, Ebmaj7, C7, F7, Bb7, Ebmaj7, C-7, F-7, Bb7, A-7, D7, E-, EminMaj7, E-7, E-6, A-, AminMaj7, A-7, A-6, B7, E-, E7, A-7, D7b9, Gmaj7'
+sentimental_durs = [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 2, 4, 4] + 6*[2, 2] + [1, 1] + [2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 2, 2, 1]
+
+somedaymyprince = 'Cmaj7, E7#5, Fmaj7, A7#5, D-7, A7#5, D7, G7, ' + 'E-7, D#o, D-7, G7, E-7, D#o, D-7, G7, ' + 'Cmaj7, E7#5, Fmaj7, A7#5, D-7, A7#5, D7, G7, ' + 'G-7, C7, F7, F#o, C/G, D-7/G, G7, C'
+somedaymyprince_durs = 29*[1] + [2,2,1]
+
+desafinado = 'Gmaj7, A7b5, A-7, D7, B-7b5, E7b9, A-7, B7b9, E7, E7b9, A7b9, Abmaj7, D7b9, Gmaj7, A7b5, A-7, D7, B-7b5, E7b9, A-7, C-6, Gmaj7, C#-7b5, F#7#9, Bmaj7, Co7, C#-7, F#7, Bmaj7, Co7, C#-7, F#7, Bmaj7, G#-7, C#-7, F#-7, Dmaj7, D#o7, E-7, A7, A-7, F-6, A7, D7b9, Gmaj7, A7b5, A-7, D7, B-7b5, E7, A-7, C-6, Gmaj7, E-7, A7, C-7, F7, A7, A-7, D7, G6'
+desafinado_durs = [1,1,2,2,2,2,2,2,2,2,1,2,2,1,1,2,2,2,2,2,2,2,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,2,2,2,4,4,1]
+
+blueingreen = 'A-7, B7#9, E-7, Eb7b5, D-7, G7b9, Cmaj7, B7#9, E-7, F#7#5, B-7, E-7'
+blueingreen_durs = [1,1,2,2,2,2,1,1,1,1,1,1]
+
+robin = 'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' +'C#m9, C#m11b5, F#m7b5, C#m9, Gmaj7(#11), F#m7b5, ' + 'B6, C7#5, C#13, C7#5, Bmaj9, Abmaj9, Bmaj9, C#m11b5, F#7, ' + 'C#m9, C#m11b5, F#m7b5'
+robin_durs = [1,2,2]*4 + [1,1,1,1,1,1,1,2,2] + [1,2,2]
