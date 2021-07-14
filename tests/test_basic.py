@@ -253,8 +253,8 @@ class ScalePatternGeneration(unittest.TestCase):
     def test_better_extension_from_chord_function(self):
 
         from sidewinder.utilities import get_diatonic_upper_chord_extension as f
-        cond1 = (f('D7',3) == 'F#')
-        cond2 = (f('D7',7) == 'C')
+        cond1 = (f('D7',3) == 'F#') # get third (3rd) of chord
+        cond2 = (f('D7',7) == 'C') # get seventh (7th) of chord
         cond2 = (f('D7',9) == 'E')
         cond3 = (f('CM6',6) == 'A')
         cond4 = (f('GM13',13) == 'E')
@@ -648,6 +648,9 @@ class LineConstructionAlgorithm(unittest.TestCase):
         '''
         ...
     
+    # TODO same as previous but where we restrict results to those which would suitably fit
+    #  e.g. some cf's have no fixed dh but good luck trying to fit a lick inside 1 beat
+
     # TODO other form of GET e.g. keyword based ("bebop" etc.)? - see LicksOverChords test class
 
     def test_set_timeline_of_chunk_funcs(self):
