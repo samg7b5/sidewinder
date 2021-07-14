@@ -98,6 +98,8 @@ def numerals_list_to_shorthand_list(numerals, key='C'):
             chord_notes = [progressions.to_chords(chord, key=key)[0] for chord in numerals] # chords as individual Notes like [['C','E','G','B'],...]
         except NoteFormatError:
             chord_notes = [progressions.to_chords(chord, key=synonyms[key])[0] for chord in numerals]
+
+        # throws IndexError if a chord cannot be determine (`[][0]` -> IndexError)
         return [chords.determine(chord, shorthand=True)[0] for chord in chord_notes] # shorthand e.g. ['CM7',...]
 
 def shorthand_list_to_numerals_list(progression=['Cmaj7', 'G-7', 'C7', 'Fmaj7', 'Bb7'], key='C'):
@@ -355,9 +357,9 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
                 # assume V (C7b9 implies F harmonic minor, i.e. 7b9 is phyrgian dominant (V mode of HM)) TODO: refactor?
                 return notes.int_to_note(notes.note_to_int(root) - 7) 
         
-        if chord_type in ['M7','M9','M13','M6']:
+        if chord_type in ['','M7','M9','M13','M6']:
             return root
-        elif chord_type in ['m7','m9','m11','m13']:
+        elif chord_type in ['m','m7','m9','m11','m13']:
             # assume II, e.g. Dm7 -> return C
             return notes.int_to_note(notes.note_to_int(root) - 2)
         elif chord_type in ['m7b9', 'm11b9', 'm13b9']:
@@ -366,7 +368,7 @@ def get_diatonic_upper_chord_extension(chord, extension, key=None, mode='major')
         elif '#11' in chord_type:
             # assume IV
             return notes.int_to_note(notes.note_to_int(root) - 5)
-        elif chord_type in ['7', '9', '11', '13']:
+        elif chord_type in ['7', '9', '11', '13','7alt']:
             # assume V
             return notes.int_to_note(notes.note_to_int(root) - 7)
         elif chord_type in ['m7b13']:
