@@ -46,7 +46,8 @@ class Chart():
         if progression is not None:
             if progression[0][0] in ['I', 'V', 'i', 'v']:
                 self.progressionNumeralsList = parse_progression(progression)
-                self.progressionShorthandList = numerals_list_to_shorthand_list(self.progressionNumeralsList, key=self.key) # ['Dm7', 'Gdom7', 'CM7']
+                parse_key = self.key if self.key else 'C'
+                self.progressionShorthandList = numerals_list_to_shorthand_list(self.progressionNumeralsList, key=parse_key) # ['Dm7', 'Gdom7', 'CM7']
             else: # if shorthand str or shorthand list
                 if type(progression) == str:
                     self.progressionRawShorthandString = progression
