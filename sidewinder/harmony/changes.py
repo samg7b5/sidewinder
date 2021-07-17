@@ -18,7 +18,8 @@ def get_diatonic_chords(scales, shape=(1,3,5)):
 
     Outputs numerals e.g. {'major': ['IM7', 'IIm7', 'IIIm7', 'IVM7', 'V7', 'VIm7', 'VIIm7b5']}
     '''
-    
+    if isinstance(scales, str):
+        scales = [scales]
     out = {}
     for scale in scales: 
         chord_degrees = [[i+j for i in shape] for j, note in enumerate(get_scale(scale))]
