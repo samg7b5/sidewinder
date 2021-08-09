@@ -57,7 +57,7 @@ pyrsistent==0.15.4
 PySocks==1.7.1
 python-dateutil==2.8.0
 pytz==2019.3
-pywin32==223
+pywin32==301
 pyzmq==18.1.0
 QtAwesome==0.6.0
 qtconsole==4.5.5
