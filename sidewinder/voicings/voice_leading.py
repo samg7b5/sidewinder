@@ -11,7 +11,7 @@ def smooth_next_chord(voiceA, chordB):
     '''
     inversions = generate_close_chords(chordB)
     distances = [minimal_chord_distance(voiceA, inversion) for inversion in inversions]
-    voiceB = inversions[np.argmin(distances)]
+    voiceB = inversions[np.argmin(distances)] if len(distances) > 0 else inversions
     return voiceB
 
 def smooth_voice_leading(_chords):
@@ -28,7 +28,17 @@ def smooth_voice_leading(_chords):
         if i == 0:
             voiced_chords.append([int(note) for note in chord]) # converted into ints
         if i>0:
-            voiced_chords.append(smooth_next_chord(voiced_chords[i-1], chord))
+            prev_idx = i-1
+            prev_chord = voiced_chords[prev_idx]
+            while len(prev_chord) == 0:
+                prev_idx -= 1
+                try:
+                    prev_chord = voiced_chords[prev_idx] # keep searching backwards for last non-rest
+                    if prev_idx < 0:
+                        raise IndexError
+                except IndexError:
+                    pass
+            voiced_chords.append(smooth_next_chord(prev_chord, chord))
     
     voiced_chords = [[Note().from_int(int(note)) for note in chord] for chord in voiced_chords]
     return voiced_chords
