@@ -44,7 +44,7 @@ class Chart():
 
         # initial parsing of progression which may arrive in various formats; populate internal representations as best as possible
         if progression is not None:
-            if progression[0][0] in ['I', 'V', 'i', 'v']:
+            if progression[0][0] in ['I', 'V', 'i', 'v'] or progression[0][:2].lower() in ['bi','bv']:
                 self.progressionNumeralsList = parse_progression(progression)
                 parse_key = self.key if self.key else 'C'
                 self.progressionShorthandList = numerals_list_to_shorthand_list(self.progressionNumeralsList, key=parse_key) # ['Dm7', 'Gdom7', 'CM7']
