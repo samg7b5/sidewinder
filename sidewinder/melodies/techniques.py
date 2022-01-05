@@ -5,6 +5,7 @@ from typing import List
 
 from mingus import *
 from mingus.containers import Note
+from mingus.core.chords import from_shorthand
 
 from sidewinder.utilities import get_scale, note_to_scale_degree, total_duration
 from sidewinder.melodies.patterns import get_scale_patterns
@@ -171,6 +172,9 @@ def random_walk(start=Note(), length=8, scale='chromatic', key='C'):
     
     return pattern_correct_octaves, None
 
+def random_arpeggiator(chord, k=8, **kwargs):
+    return choices(from_shorthand(chord), k=k), None
+
 GENERATIVE_CHUNKS = {
     'chromatic_approach': {
         'function': approach_with_chromatic_note,
@@ -180,6 +184,10 @@ GENERATIVE_CHUNKS = {
     },
     'random_walk': {
         'function': random_walk,
+        'stochastic_dv': True,
+    },
+    'arpeggiator': {
+        'function': random_arpeggiator,
         'stochastic_dv': True,
     }
 }

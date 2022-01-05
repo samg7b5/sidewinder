@@ -593,6 +593,8 @@ class LineConstructionAlgorithm(unittest.TestCase):
         Return possible "chunk_funcs" (functions which construct melodic chunks) matching
         the given vertical and horizontal constraints (e.g. up an octave, in 4 beats)
         where the cf's are stored in python scripts (e.g. as python functions)
+
+        # This is essentially testing the implementation of check_cf_dv_dh
         '''    
         from mingus.containers import Note
         from sidewinder.utilities import total_duration
