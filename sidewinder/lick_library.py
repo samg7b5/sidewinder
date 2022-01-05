@@ -124,10 +124,10 @@ def get_all_chord_respellings(chord):
 
 def respell_and_determine(chord, shorthand=False):
     try:
-        named_chords = [chords.determine(chord, shorthand=shorthand)]
+        named_chords = [chords.determine(chord, shorthand=shorthand, no_polychords=True)]
     except TypeError:
         chord = [note.name for note in chord]
-        named_chords = [chords.determine(chord, shorthand=shorthand)]
+        named_chords = [chords.determine(chord, shorthand=shorthand, no_polychords=True)]
     if len(named_chords[0]) == 0:
         named_chords = []
     
