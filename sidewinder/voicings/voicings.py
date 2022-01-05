@@ -13,6 +13,9 @@ def apply_individual_chord_voicing(chord:str, voicing_type=None, semitones=False
     Expects a single chord shorthand e.g. 'C7'.
     Returns mingus Notes by default with option to return as semitone integers.
     '''
+    if chord is None:
+        return [] # or [None]?
+    
     voiced_semitones = None
     if voicing_type is None:
         voiced_semitones = default_voice(chord)
