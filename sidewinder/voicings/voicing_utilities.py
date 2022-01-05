@@ -8,6 +8,8 @@ def minimal_chord_distance(source_chord, target_chord):
     source_chord = [int(note) for note in source_chord]
     target_chord = [int(note) for note in target_chord]
     distance = 0
+    if len(source_chord) == 0: # no constraints when following a rest
+        return distance
     for target_note in target_chord:
         distance += min([abs(target_note - source_note) for source_note in source_chord])
     return distance
