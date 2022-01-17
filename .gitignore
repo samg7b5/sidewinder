@@ -79,6 +79,7 @@ ENV/
 *.mid
 
 scratch.py
+**/scratch*.py
 .vscode/settings.json
 **/.vscode/
 **/.vscode/*
