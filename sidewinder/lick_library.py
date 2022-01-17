@@ -157,6 +157,7 @@ def temporal_realign_track_bars(track, pickup=None, give_notes=False, give_durat
         notes = [[]] + notes
         durations = [1/pickup] + durations
     
+    # NOTE: similar logic to harmony.changes.apply_delays
     notes2 = []
     durations2 = []
     current_pos = 0 # maybe this should be set negative in the case of a pickup bar / upbeat ? e.g. determined by split pos

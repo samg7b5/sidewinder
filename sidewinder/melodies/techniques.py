@@ -192,6 +192,8 @@ GENERATIVE_CHUNKS = {
     }
 }
 
+# Helpers
+
 def apply_cf(cf: str, **kwargs) -> List[Note]:
     if cf in DIATONIC_CHUNKS.keys():
         chunk = apply_diatonic_chunk(cf, **kwargs)
