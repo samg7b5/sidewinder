@@ -7,6 +7,7 @@ Holds utility-style functions that are used across different mid-level Sidewinde
 @author: Sam
 """
 from functools import reduce
+from re import split
 from mingus.containers import Note, Track, Bar
 from mingus.core.mt_exceptions import NoteFormatError
 import mingus.core.progressions as progressions
@@ -481,7 +482,8 @@ def total_duration(durations):
     
     # alternative but floating point arithmetic might screw this up (hence round) 
     # also assumes 4/4
-    total_dur = round(1/reduce(lambda x,y: x+y, [1/n for n in durations]),10)
+    # total_dur = round(1/reduce(lambda x,y: x+y, [1/n for n in durations]),10)
+    total_dur = 1/round(reduce(lambda x,y: x+y, [1/n for n in durations]),10)
     
     # NOTE an alternative which is perhaps the most robust (time sigs etc) is to build
     # a dummy Bar(s) and then calculate the current position / total length
@@ -495,13 +497,13 @@ def track_to_degrees(track, key, scale, **kwargs):
     return [[note_to_scale_degree(x, key, scale, **kwargs) for x in nc] for nc in note_names]
 
 
-def notes_durations_to_track(_notes, durations=None):
+def notes_durations_to_track(_notes, durations=None, meter=(4,4)):
     '''
     params:
     - _notes: list of list of Notes [['G','B','D','F'], ['C','E','G','B']]
     - durations: Durations should be a list of integers e.g. [2,2,1] will give | chord 1 chord 2 | chord 3 |
 
-    TO-DO: 
+    TODO: 
         - mingus durations are limited to =< 1 bar; we want to be able to parse a duration of '0.5' (because in mingus '4'=crotchet i.e. num subdivs) to refer to 2 bars (just use 1/d)
     
     '''
@@ -509,10 +511,26 @@ def notes_durations_to_track(_notes, durations=None):
         durations = [1]*len(_notes)
 
     t = Track()
+
+    def add_notes_to_bar_or_new_bar(bar, _note, duration):
+        if not bar.place_notes(_note, duration): # attempt to place notes, handle if failed:
+            if abs(bar.length - bar.current_beat) < 10e-5: # if bar was already full # rounding in case of floating point fun...
+                t.add_bar(bar)
+                bar = add_notes_to_bar_or_new_bar(Bar(), _note, duration)
+            elif 1 / duration > bar.length - bar.current_beat: # if note can't fit in bar
+                split_durations = 1/(bar.length - bar.current_beat), 1/(1/duration - (bar.length - bar.current_beat))
+                bar.place_notes(_note, split_durations[0]) # fill existing bar and add to track
+                t.add_bar(bar) # TODO how to tie over this bar to the next?
+                if split_durations[1] < 100: # check for likely rounding errors (var is large if note remainder is small)
+                    bar = add_notes_to_bar_or_new_bar(Bar(), _note, round(split_durations[1],10)) # put remainder in new bar(s)
+                else:
+                    bar = Bar()
+        return bar # only return (partial) bars where we added notes (completed bars were already added to track)
+
+    b = Bar()
     for i, _note in enumerate(_notes):
-        b = Bar()
-        b.place_notes(_note, durations[i]) 
-        t.add_bar(b)
+        b = add_notes_to_bar_or_new_bar(b, _note, durations[i]) #TODO b.set_meter(meter)
+    t.add_bar(b) # make sure we place the last bar into the track - it might have been partially filled
     return t
 
 def track_to_midi(t, name='midi_out\\untitled', save=True, timestamp=True):
