@@ -35,7 +35,7 @@ mccabe==0.6.1
 mistune==0.8.4
 mkl-fft
 mkl-random
-nbconvert==5.6.0
+nbconvert==6.3.0
 nbformat==4.4.0
 numpy==1.16.5
 numpydoc==0.9.1
